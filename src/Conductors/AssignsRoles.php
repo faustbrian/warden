@@ -162,6 +162,13 @@ final class AssignsRoles
             // Only attach roles that don't already exist in this scope
             $toAttach = $roleIds->diff($existing);
 
+            \Log::debug('AssignsRoles debug', [
+                'authority' => $authority->getKey(),
+                'roleIds' => $roleIds->toArray(),
+                'existing' => $existing,
+                'toAttach' => $toAttach->toArray(),
+            ]);
+
             if ($toAttach->isNotEmpty()) {
                 /** @phpstan-ignore-next-line Dynamic relationship */
                 $authority->roles()->attach(
