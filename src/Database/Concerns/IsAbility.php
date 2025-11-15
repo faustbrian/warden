@@ -374,7 +374,7 @@ trait IsAbility
             $names[] = '*';
         }
 
-        $query->whereIn($this->table.'.name', $names);
+        $query->whereIn($this->getTable().'.name', $names);
     }
 
     /**
@@ -388,7 +388,7 @@ trait IsAbility
      */
     protected function scopeSimpleAbility($query): void
     {
-        $query->whereNull($this->table.'.subject_type');
+        $query->whereNull($this->getTable().'.subject_type');
     }
 
     /**
