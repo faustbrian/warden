@@ -87,22 +87,32 @@ final readonly class SpatieMigrator implements MigratorInterface
                 continue;
             }
 
-            $role = DB::table($this->getTableName('roles'))->find($assignment->role_id);
+            $spatieRole = DB::table($this->getTableName('roles'))->find($assignment->role_id);
 
-            if ($role === null) {
+            if ($spatieRole === null) {
                 Log::channel($this->logChannel)->debug('Role not found: '.$assignment->role_id);
 
                 continue;
             }
 
             /** @phpstan-ignore-next-line property.nonObject (stdClass from DB query) */
-            assert(is_string($role->name) && is_string($role->guard_name));
+            assert(is_string($spatieRole->name) && is_string($spatieRole->guard_name));
 
             /** @phpstan-ignore-next-line property.nonObject (stdClass from DB query) */
-            new AssignsRoles($role->name, $role->guard_name)->to($user);
+            $wardenRole = Models::role()->where('name', $spatieRole->name)->where('guard_name', $spatieRole->guard_name)->first();
+
+            if ($wardenRole === null) {
+                /** @phpstan-ignore-next-line property.nonObject (stdClass from DB query) */
+                Log::channel($this->logChannel)->debug('Warden role not found: '.$spatieRole->name);
+
+                continue;
+            }
+
+            /** @phpstan-ignore-next-line property.nonObject (stdClass from DB query) */
+            new AssignsRoles($spatieRole->name, $spatieRole->guard_name)->to($user);
 
             /** @phpstan-ignore-next-line property.nonObject,property.notFound (stdClass/Model properties from DB query) */
-            Log::channel($this->logChannel)->debug(sprintf("Assigned role '%s' to user: %s", $role->name, $user->email ?? $user->getKey()));
+            Log::channel($this->logChannel)->debug(sprintf("Assigned role '%s' to user: %s", $spatieRole->name, $user->email ?? $user->getKey()));
         }
     }
 
