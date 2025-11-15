@@ -140,7 +140,7 @@ final class AssignsRoles
             }
 
             /** @var Model $authority */
-            $authority = $query->find($authorityId);
+            $authority = $query->where(Models::getModelKey(new $authorityClass()), $authorityId)->first();
 
             if (!$authority) {
                 continue;
