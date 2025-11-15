@@ -1,0 +1,91 @@
+{
+    "name": "cline/warden",
+    "description": "Eloquent roles and abilities.",
+    "license": "MIT",
+    "keywords": [
+        "abilities",
+        "acl",
+        "capabilities",
+        "eloquent",
+        "laravel",
+        "permissions",
+        "roles"
+    ],
+    "authors": [
+        {
+            "name": "Brian Faust",
+            "email": "brian@cline.sh"
+        }
+    ],
+    "require": {
+        "php": "^8.4.0",
+        "cline/ruler": "^3.0.2",
+        "illuminate/auth": "^12.0",
+        "illuminate/cache": "^12.0",
+        "illuminate/console": "^12.0",
+        "illuminate/container": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/events": "^12.0",
+        "spatie/laravel-package-tools": "^1.92.7"
+    },
+    "require-dev": {
+        "cline/php-cs-fixer": "^1.1.0",
+        "driftingly/rector-laravel": "^2.1.3",
+        "ergebnis/composer-normalize": "^2.49@dev",
+        "larastan/larastan": "^3.8",
+        "laravel/pint": "^1.25.1",
+        "orchestra/testbench": "^10.6",
+        "pestphp/pest": "^4.1.3",
+        "pestphp/pest-plugin-drift": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "pestphp/pest-plugin-type-coverage": "^4.0.3",
+        "phpstan/phpstan": "^2.1.32",
+        "rector/rector": "^2.2.8",
+        "symfony/var-dumper": "^7.3.5"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Cline\\Warden\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true,
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "aliases": {
+                "Warden": "Cline\\Warden\\Facades\\Warden"
+            },
+            "providers": [
+                "Cline\\Warden\\WardenServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "lint": "vendor/bin/php-cs-fixer fix",
+        "refactor": "rector",
+        "test": [
+            "@test:lint",
+            "@test:type-coverage",
+            "@test:unit",
+            "@test:types",
+            "@test:refactor"
+        ],
+        "test:lint": "vendor/bin/php-cs-fixer check --diff",
+        "test:refactor": "rector --dry-run",
+        "test:type-coverage": "pest --parallel --exactly=100 --type-coverage",
+        "test:types": "phpstan",
+        "test:unit": "pest --parallel --exactly=100 --coverage"
+    }
+}
