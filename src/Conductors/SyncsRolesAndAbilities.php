@@ -19,8 +19,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 
 use function array_diff;
-use function array_flip;
-use function array_map;
 use function assert;
 use function config;
 use function explode;

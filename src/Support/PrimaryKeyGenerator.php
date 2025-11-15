@@ -65,8 +65,8 @@ final class PrimaryKeyGenerator
     /**
      * Enrich pivot data for multiple IDs with unique primary keys.
      *
-     * @param  array<int>           $ids  IDs to attach
-     * @param  array<string, mixed> $data Base pivot attributes
+     * @param  array<int>                       $ids  IDs to attach
+     * @param  array<string, mixed>             $data Base pivot attributes
      * @return array<int, array<string, mixed>> Data keyed by ID with unique primary keys
      */
     public static function enrichPivotDataForIds(array $ids, array $data): array

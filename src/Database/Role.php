@@ -15,6 +15,7 @@ use Cline\Warden\Database\Concerns\IsRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 /**
  * Eloquent model representing a Warden role.
@@ -42,14 +43,6 @@ final class Role extends Model
     use IsRole;
 
     /**
-     * Get the table associated with the model.
-     */
-    public function getTable(): string
-    {
-        return Models::table('roles');
-    }
-
-    /**
      * The attributes that are mass assignable.
      *
      * Allows 'name', 'title', and 'guard_name' to be set via create() or fill() methods.
@@ -58,4 +51,13 @@ final class Role extends Model
      * @var list<string>
      */
     protected $fillable = ['name', 'title', 'guard_name'];
+
+    /**
+     * Get the table associated with the model.
+     */
+    #[Override()]
+    public function getTable(): string
+    {
+        return Models::table('roles');
+    }
 }

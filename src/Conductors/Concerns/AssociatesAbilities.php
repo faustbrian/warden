@@ -16,8 +16,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
 use function array_diff;
-use function array_flip;
-use function array_map;
 use function func_get_args;
 
 /**

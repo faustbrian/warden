@@ -21,7 +21,6 @@ use function assert;
 use function class_uses_recursive;
 use function config;
 use function in_array;
-use function is_int;
 use function is_string;
 use function sprintf;
 
@@ -76,7 +75,7 @@ final readonly class SpatieMigrator implements MigratorInterface
         foreach ($assignments as $assignment) {
             $user = $this->findUser($assignment->model_id);
 
-            if (!$user) {
+            if (!$user instanceof Model) {
                 Log::channel($this->logChannel)->debug('User not found: '.$assignment->model_id);
 
                 continue;
@@ -106,7 +105,7 @@ final readonly class SpatieMigrator implements MigratorInterface
         foreach ($assignments as $assignment) {
             $user = $this->findUser($assignment->model_id);
 
-            if (!$user) {
+            if (!$user instanceof Model) {
                 Log::channel($this->logChannel)->debug('User not found: '.$assignment->model_id);
 
                 continue;

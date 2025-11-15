@@ -14,6 +14,7 @@ use Cline\Warden\Database\Concerns\IsAbility;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 /**
  * Represents an authorization ability in the system.
@@ -40,14 +41,6 @@ final class Ability extends Model
     use IsAbility;
 
     /**
-     * Get the table associated with the model.
-     */
-    public function getTable(): string
-    {
-        return Models::table('abilities');
-    }
-
-    /**
      * The attributes that are mass assignable.
      *
      * Includes the ability's unique identifier (name), human-readable
@@ -66,4 +59,13 @@ final class Ability extends Model
     protected $casts = [
         'only_owned' => 'boolean',
     ];
+
+    /**
+     * Get the table associated with the model.
+     */
+    #[Override()]
+    public function getTable(): string
+    {
+        return Models::table('abilities');
+    }
 }
