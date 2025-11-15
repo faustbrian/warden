@@ -67,6 +67,8 @@ trait HasRoles
             Models::classname(Role::class),
             'actor',
             Models::table('assigned_roles'),
+            relatedPivotKey: null,
+            parentKey: Models::getModelKey($this),
         )->using(AssignedRole::class)
             ->withPivot('scope', 'context_id', 'context_type');
 

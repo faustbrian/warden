@@ -211,14 +211,14 @@ final readonly class SpatieMigrator implements MigratorInterface
         // @codeCoverageIgnoreStart
         if (in_array(SoftDeletes::class, class_uses_recursive($model), true)) {
             /** @phpstan-ignore-next-line method.nonObject (static call on class-string) */
-            $result = $model::withTrashed()->find($userId);
+            $result = $model::withTrashed()->where('id', $userId)->first();
             assert($result === null || $result instanceof Model);
 
             return $result;
         }
 
         /** @codeCoverageIgnoreEnd */
-        $result = $model::find($userId);
+        $result = $model::where('id', $userId)->first();
         assert($result === null || $result instanceof Model);
 
         return $result;

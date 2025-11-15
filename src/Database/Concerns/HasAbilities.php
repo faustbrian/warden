@@ -74,6 +74,8 @@ trait HasAbilities
             $abilityClass,
             'actor',
             Models::table('permissions'),
+            relatedPivotKey: null,
+            parentKey: Models::getModelKey($this),
         )->using(Permission::class)
             ->withPivot('forbidden', 'scope', 'context_id', 'context_type');
 
