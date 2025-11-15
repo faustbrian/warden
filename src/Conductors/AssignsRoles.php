@@ -151,10 +151,21 @@ final class AssignsRoles
                 $pivotData['context_type'] = $this->context->getMorphClass();
             }
 
+            // Get existing role IDs to avoid duplicates (accounting for scope)
             /** @phpstan-ignore-next-line Dynamic relationship */
-            $authority->roles()->syncWithoutDetaching(
-                $roleIds->mapWithKeys(fn ($roleId) => [$roleId => $pivotData])->all()
-            );
+            $existingQuery = $authority->roles();
+            Models::scope()->applyToRelation($existingQuery);
+            $existing = $existingQuery->pluck(Models::table('roles').'.id')->all();
+
+            // Only attach roles that don't already exist in this scope
+            $toAttach = $roleIds->diff($existing);
+
+            if ($toAttach->isNotEmpty()) {
+                /** @phpstan-ignore-next-line Dynamic relationship */
+                $authority->roles()->attach(
+                    $toAttach->mapWithKeys(fn ($roleId) => [$roleId => $pivotData])->all()
+                );
+            }
         }
     }
 
