@@ -12,12 +12,15 @@ namespace Cline\Warden\Conductors;
 use Cline\Warden\Conductors\Concerns\FindsAndCreatesAbilities;
 use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Role;
+use Cline\Warden\Support\PrimaryKeyGenerator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 
 use function array_diff;
+use function array_flip;
+use function array_map;
 use function assert;
 use function config;
 use function explode;
@@ -235,9 +238,14 @@ final class SyncsRolesAndAbilities
         $toDetach = array_diff($current, $ids);
         $this->detach($toDetach, $relation);
 
+        $toAttach = array_diff($ids, $current);
+        $baseData = Models::scope()->getAttachAttributes($this->authority);
+
         $relation->attach(
-            array_diff($ids, $current),
-            Models::scope()->getAttachAttributes($this->authority),
+            array_map(
+                fn (): array => PrimaryKeyGenerator::enrichPivotData($baseData),
+                array_flip($toAttach),
+            ),
         );
     }
 

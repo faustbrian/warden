@@ -11,10 +11,12 @@ namespace Cline\Warden\Conductors\Concerns;
 
 use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Permission;
+use Cline\Warden\Support\PrimaryKeyGenerator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
 use function array_diff;
+use function array_flip;
 use function array_map;
 use function func_get_args;
 
@@ -178,10 +180,15 @@ trait AssociatesAbilities
             $attributes['context_type'] = $this->context->getMorphClass();
         }
 
+        $attachData = array_map(
+            fn (): array => PrimaryKeyGenerator::enrichPivotData(
+                ['forbidden' => $this->forbidding] + $attributes,
+            ),
+            array_flip($ids),
+        );
+
         /** @phpstan-ignore-next-line Dynamic abilities() relationship */
-        $authority
-            ->abilities()
-            ->attach($ids, ['forbidden' => $this->forbidding] + $attributes);
+        $authority->abilities()->attach($attachData);
     }
 
     /**
@@ -207,7 +214,7 @@ trait AssociatesAbilities
         foreach ($ids as $id) {
             Permission::query()->firstOrCreate(
                 ['ability_id' => $id, 'actor_id' => null, 'actor_type' => null] + $attributes,
-                ['ability_id' => $id] + $attributes
+                ['ability_id' => $id] + $attributes,
             );
         }
     }

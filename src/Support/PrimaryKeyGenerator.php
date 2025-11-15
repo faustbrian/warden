@@ -44,4 +44,21 @@ final class PrimaryKeyGenerator
 
         return new PrimaryKeyValue($primaryKeyType, $value);
     }
+
+    /**
+     * Enrich pivot data with primary key if required.
+     *
+     * @param  array<string, mixed> $data Pivot attributes
+     * @return array<string, mixed> Enriched attributes with 'id' if needed
+     */
+    public static function enrichPivotData(array $data): array
+    {
+        $primaryKey = self::generate();
+
+        if ($primaryKey->requiresValue()) {
+            $data['id'] = $primaryKey->value;
+        }
+
+        return $data;
+    }
 }

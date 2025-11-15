@@ -9,7 +9,7 @@
 
 use Illuminate\Support\Facades\DB;
 
-if (! function_exists('insertWithoutForeignKeyChecks')) {
+if (!function_exists('insertWithoutForeignKeyChecks')) {
     /**
      * Insert data into a table while bypassing foreign key constraint checks.
      *
@@ -22,9 +22,9 @@ if (! function_exists('insertWithoutForeignKeyChecks')) {
         $driver = DB::connection()->getDriverName();
 
         if ($driver === 'pgsql') {
-            DB::statement("ALTER TABLE {$table} DISABLE TRIGGER ALL");
+            DB::statement(sprintf('ALTER TABLE %s DISABLE TRIGGER ALL', $table));
             DB::table($table)->insert($data);
-            DB::statement("ALTER TABLE {$table} ENABLE TRIGGER ALL");
+            DB::statement(sprintf('ALTER TABLE %s ENABLE TRIGGER ALL', $table));
         } else {
             DB::table($table)->insert($data);
         }

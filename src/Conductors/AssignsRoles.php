@@ -13,6 +13,7 @@ use BackedEnum;
 use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Role;
 use Cline\Warden\Support\Helpers;
+use Cline\Warden\Support\PrimaryKeyGenerator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -22,6 +23,7 @@ use function config;
 use function is_array;
 use function is_int;
 use function is_string;
+use function method_exists;
 
 /**
  * Conductor for assigning roles to authorities in bulk.
@@ -163,7 +165,9 @@ final class AssignsRoles
             if ($toAttach->isNotEmpty()) {
                 /** @phpstan-ignore-next-line Dynamic relationship */
                 $authority->roles()->attach(
-                    $toAttach->mapWithKeys(fn ($roleId) => [$roleId => $pivotData])->all()
+                    $toAttach->mapWithKeys(fn ($roleId): array => [
+                        $roleId => PrimaryKeyGenerator::enrichPivotData($pivotData),
+                    ])->all(),
                 );
             }
         }

@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Override;
 
+use function config;
+
 /**
  * @author Brian Faust <brian@cline.sh>
  */
