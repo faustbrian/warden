@@ -160,7 +160,7 @@ final class AssignsRoles
             // Only attach roles that don't already exist in this scope
             $toAttach = $roleIds->diff($existing);
 
-            \Log::debug('AssignsRoles debug', [
+            \Log::channel('migration')->debug('AssignsRoles debug', [
                 'authority' => $authority->getKey(),
                 'roleIds' => $roleIds->toArray(),
                 'existing' => $existing,
