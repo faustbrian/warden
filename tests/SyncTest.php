@@ -8,6 +8,7 @@
  */
 
 use Cline\Warden\Database\Ability;
+use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Role;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
@@ -221,6 +222,76 @@ describe('Syncing Roles and Abilities', function (): void {
             // Assert
             expect($user->isNotAn('admin'))->toBeTrue();
             expect($account->isAn('admin'))->toBeTrue();
+        });
+    });
+
+    describe('Regression Tests - Keymap Support', function (): void {
+        test('sync uses keymap value for pivot query preventing incorrect assignments', function (): void {
+            // Arrange - Configure keymap
+            Models::enforceMorphKeyMap([
+                User::class => 'id',
+                Role::class => 'id',
+            ]);
+
+            $user1 = User::query()->create(['name' => 'Alice', 'id' => 100]);
+            $user2 = User::query()->create(['name' => 'Bob', 'id' => 200]);
+            $user3 = User::query()->create(['name' => 'Charlie', 'id' => 300]);
+
+            $warden = $this->bouncer($user1)->dontCache();
+
+            // Initial role assignments (sync will create roles if they don't exist)
+            $warden->assign(['admin', 'editor'])->to($user1);
+            $warden->assign(['moderator'])->to($user2);
+            $warden->assign(['subscriber'])->to($user3);
+
+            // Act - Sync user1's roles (should replace with new set)
+            $warden->sync($user1)->roles(['manager', 'viewer']);
+
+            // Assert - User1 has only synced roles
+            expect($warden->is($user1)->a('manager'))->toBeTrue();
+            expect($warden->is($user1)->a('viewer'))->toBeTrue();
+            expect($warden->is($user1)->notAn('admin'))->toBeTrue();
+            expect($warden->is($user1)->notAn('editor'))->toBeTrue();
+
+            // Assert - Other users unaffected (without fix, sync could affect wrong users)
+            expect($warden->is($user2)->a('moderator'))->toBeTrue();
+            expect($warden->is($user3)->a('subscriber'))->toBeTrue();
+
+            Models::reset();
+        });
+
+        test('prevents role sync leakage between users with custom keymap', function (): void {
+            // Arrange - This tests the critical bug where keymap values weren't used
+            Models::enforceMorphKeyMap([
+                User::class => 'id',
+                Role::class => 'id',
+            ]);
+
+            $alice = User::query()->create(['name' => 'Alice', 'id' => 100]);
+            $bob = User::query()->create(['name' => 'Bob', 'id' => 200]);
+            $charlie = User::query()->create(['name' => 'Charlie', 'id' => 300]);
+
+            $warden = $this->bouncer($alice)->dontCache();
+
+            // Initial assignments (assign will create roles if they don't exist)
+            $warden->assign(['admin', 'editor'])->to($alice);
+            $warden->assign(['moderator', 'editor'])->to($bob);
+            $warden->assign(['subscriber'])->to($charlie);
+
+            // Act - Sync only Alice's roles
+            $warden->sync($alice)->roles(['owner']);
+
+            // Assert - Alice synced correctly
+            expect($warden->is($alice)->an('owner'))->toBeTrue();
+            expect($warden->is($alice)->notAn('admin'))->toBeTrue();
+            expect($warden->is($alice)->notAn('editor'))->toBeTrue();
+
+            // Assert - Bob and Charlie unchanged
+            expect($warden->is($bob)->a('moderator'))->toBeTrue();
+            expect($warden->is($bob)->an('editor'))->toBeTrue();
+            expect($warden->is($charlie)->a('subscriber'))->toBeTrue();
+
+            Models::reset();
         });
     });
 });

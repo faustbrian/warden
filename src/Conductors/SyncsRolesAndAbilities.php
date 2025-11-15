@@ -17,12 +17,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 use function array_diff;
 use function assert;
 use function config;
 use function explode;
 use function is_array;
+use function is_int;
 use function is_string;
 use function iterator_to_array;
 use function last;
@@ -87,9 +89,14 @@ final class SyncsRolesAndAbilities
          */
         $rolesRelation = $authority->roles();
 
+        /** @var array<int|Role|string> $rolesArray */
+        $rolesArray = is_array($roles) ? $roles : iterator_to_array($roles);
+
+        $roleModels = $this->findOrCreateRoles($rolesArray);
+
         /** @var BelongsToMany<Model, Model> $rolesRelation */
         $this->sync(
-            Models::role()->getRoleKeys($roles),
+            $roleModels->pluck($roleModels->first()?->getKeyName() ?? 'id')->all(),
             $rolesRelation,
         );
     }
@@ -289,5 +296,45 @@ final class SyncsRolesAndAbilities
 
         /** @var array<string> */
         return Arr::pluck($query->get([$column]), $key);
+    }
+
+    /**
+     * Find or create roles with guard filtering.
+     *
+     * Resolves role identifiers into role model instances, creating missing roles
+     * as needed with proper guard name assignment. Handles multiple input formats:
+     * Role instances (used as-is), integer IDs (looked up), and string names
+     * (found or created with guard).
+     *
+     * @param  array<int|Role|string> $roles Array of role IDs, names, or Role instances
+     * @return Collection<int, Role>  Collection of role models
+     */
+    private function findOrCreateRoles(array $roles): Collection
+    {
+        $result = new Collection();
+
+        foreach ($roles as $role) {
+            if ($role instanceof Role) {
+                $result->push($role);
+            } elseif (is_int($role)) {
+                // Look up role by ID
+                $roleModel = Models::role()::query()->find($role);
+
+                if ($roleModel) {
+                    $result->push($roleModel);
+                }
+            } else {
+                // Create or find role by name with guard
+                $result->push(
+                    Models::role()::query()
+                        ->firstOrCreate(
+                            ['name' => $role, 'guard_name' => $this->guardName],
+                            ['name' => $role, 'guard_name' => $this->guardName],
+                        ),
+                );
+            }
+        }
+
+        return $result;
     }
 }

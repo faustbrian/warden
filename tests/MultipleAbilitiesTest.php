@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+use Cline\Warden\Database\Models;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Concerns\TestsClipboards;
 use Tests\Fixtures\Models\Account;
@@ -362,6 +363,43 @@ describe('Multiple Abilities', function (): void {
             expect($warden->can('delete', $user1))->toBeTrue();
             expect($warden->can('view', $account1))->toBeTrue();
             expect($warden->cannot('update', $account1))->toBeTrue();
+        })->with('bouncerProvider');
+    });
+
+    describe('Regression Tests - Keymap Support', function (): void {
+        test('disallow uses keymap value for pivot query preventing incorrect removals', function ($provider): void {
+            // Arrange - Configure keymap
+            Models::enforceMorphKeyMap([
+                User::class => 'id',
+            ]);
+
+            [$warden, $user1] = $provider();
+            $user2 = User::query()->create(['name' => 'Bob', 'id' => 200]);
+            $user3 = User::query()->create(['name' => 'Charlie', 'id' => 300]);
+
+            // Grant abilities to all users
+            $warden->allow($user1)->to(['edit-posts', 'delete-posts', 'publish-posts']);
+            $warden->allow($user2)->to(['edit-posts', 'delete-posts']);
+            $warden->allow($user3)->to(['edit-posts']);
+
+            // Act - Remove specific abilities from user1 only
+            $warden->disallow($user1)->to(['delete-posts', 'publish-posts']);
+
+            // Assert - User1's abilities removed correctly (not affecting other users)
+            expect($warden->can('edit-posts'))->toBeTrue();
+            expect($warden->cannot('delete-posts'))->toBeTrue();
+            expect($warden->cannot('publish-posts'))->toBeTrue();
+
+            // Assert - User2 still has their abilities
+            $wardenUser2 = $this->bouncer($user2);
+            expect($wardenUser2->can('edit-posts'))->toBeTrue();
+            expect($wardenUser2->can('delete-posts'))->toBeTrue();
+
+            // Assert - User3 still has their ability
+            $wardenUser3 = $this->bouncer($user3);
+            expect($wardenUser3->can('edit-posts'))->toBeTrue();
+
+            Models::reset();
         })->with('bouncerProvider');
     });
 });

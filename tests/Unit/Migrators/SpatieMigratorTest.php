@@ -471,4 +471,96 @@ describe('SpatieMigrator', function (): void {
             ]);
         });
     });
+
+    describe('Regression Tests - Keymap Support', function (): void {
+        test('findUser uses keymap column not primary key preventing assignment to wrong user', function (): void {
+            // Arrange - Configure keymap to use 'id' column
+            Models::enforceMorphKeyMap([
+                User::class => 'id',
+            ]);
+
+            // Create users with specific IDs
+            $user1 = User::query()->create(['name' => 'Alice', 'id' => 100]);
+            $user2 = User::query()->create(['name' => 'Bob', 'id' => 200]);
+            $user3 = User::query()->create(['name' => 'Charlie', 'id' => 300]);
+
+            // Create Spatie roles
+            $adminRoleId = DB::table('spatie_roles')->insertGetId([
+                'name' => 'admin',
+                'guard_name' => 'web',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $editorRoleId = DB::table('spatie_roles')->insertGetId([
+                'name' => 'editor',
+                'guard_name' => 'web',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $managerRoleId = DB::table('spatie_roles')->insertGetId([
+                'name' => 'manager',
+                'guard_name' => 'web',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Assign different roles to each user using keymap IDs
+            DB::table('spatie_model_has_roles')->insert([
+                ['role_id' => $adminRoleId, 'model_type' => 'user', 'model_id' => 100],
+                ['role_id' => $editorRoleId, 'model_type' => 'user', 'model_id' => 200],
+                ['role_id' => $managerRoleId, 'model_type' => 'user', 'model_id' => 300],
+            ]);
+
+            $migrator = new SpatieMigrator(User::class);
+
+            // Act
+            $migrator->migrate();
+
+            // Assert - Each user gets their own role (not all going to one user)
+            $adminRole = Models::role()->where('name', 'admin')->first();
+            $editorRole = Models::role()->where('name', 'editor')->first();
+            $managerRole = Models::role()->where('name', 'manager')->first();
+
+            // User 1 should have admin
+            $this->assertDatabaseHas('assigned_roles', [
+                'role_id' => $adminRole->id,
+                'actor_id' => 100,
+                'actor_type' => $user1->getMorphClass(),
+            ]);
+
+            // User 2 should have editor
+            $this->assertDatabaseHas('assigned_roles', [
+                'role_id' => $editorRole->id,
+                'actor_id' => 200,
+                'actor_type' => $user2->getMorphClass(),
+            ]);
+
+            // User 3 should have manager
+            $this->assertDatabaseHas('assigned_roles', [
+                'role_id' => $managerRole->id,
+                'actor_id' => 300,
+                'actor_type' => $user3->getMorphClass(),
+            ]);
+
+            // Verify no incorrect assignments (without fix, all would go to user with primary key 1)
+            $user1Assignments = DB::table('assigned_roles')
+                ->where('actor_id', 100)
+                ->where('actor_type', $user1->getMorphClass())
+                ->count();
+            $user2Assignments = DB::table('assigned_roles')
+                ->where('actor_id', 200)
+                ->where('actor_type', $user2->getMorphClass())
+                ->count();
+            $user3Assignments = DB::table('assigned_roles')
+                ->where('actor_id', 300)
+                ->where('actor_type', $user3->getMorphClass())
+                ->count();
+
+            expect($user1Assignments)->toBe(1);
+            expect($user2Assignments)->toBe(1);
+            expect($user3Assignments)->toBe(1);
+        });
+    });
 });
