@@ -24,19 +24,23 @@ $authority = $query->where(Models::getModelKeyFromClass($authorityClass), $autho
 
 ### Action Items
 
-1. **Codebase-wide Audit** (REQUIRED)
-   - [ ] Search for all `find()` calls that receive values from keymap lookups
-   - [ ] Search for `findOrFail()`, `findMany()`, `findOr()` with keymap values
-   - [ ] Review all code paths where `Models::getModelKey()` or `mapAuthorityByClass()` is used
-   - [ ] Check if values are being used correctly with appropriate lookup methods
+1. **Codebase-wide Audit**
+   - [x] Search for all `find()` calls that receive values from keymap lookups - COMPLETED
+   - [x] Search for `findOrFail()`, `findMany()`, `findOr()` with keymap values - None found
+   - [x] Review all code paths where `Models::getModelKey()` or `mapAuthorityByClass()` is used - COMPLETED
+   - [x] Check if values are being used correctly with appropriate lookup methods - COMPLETED
 
 2. **Specific Files to Review**
-   - [ ] `src/Conductors/GivesAbilities.php` - likely has same pattern
-   - [ ] `src/Conductors/RemovesAbilities.php` - likely has same pattern
-   - [ ] `src/Conductors/RemovesRoles.php` - likely has same pattern
-   - [ ] `src/Conductors/ChecksRoles.php` - verify authority lookups
-   - [ ] `src/Conductors/SyncsRolesAndAbilities.php` - verify authority lookups
-   - [ ] Any other conductor that accepts `$authority` parameter
+   - [x] `src/Conductors/GivesAbilities.php` - ✅ SAFE: Works directly with authority models, no find() calls
+   - [x] `src/Conductors/RemovesAbilities.php` - ✅ SAFE: Uses trait, no find() calls
+   - [x] `src/Conductors/RemovesRoles.php` - ✅ SAFE: Uses keymap IDs directly in WHERE clause, no find()
+   - [x] `src/Conductors/ChecksRoles.php` - ✅ SAFE: No find() calls
+   - [x] `src/Conductors/SyncsRolesAndAbilities.php` - ✅ SAFE: No find() calls
+   - [x] `src/Conductors/AssignsRoles.php` - ✅ FIXED: Now uses where() with getModelKeyFromClass()
+   - [x] `src/Conductors/AssignsRoles.php` (findOrCreateRoles method) - ✅ SAFE: Only uses find() when is_int() check passes
+   - [x] `src/Migrators/SpatieMigrator.php` - ✅ FIXED: findUser() now uses where($keyColumn, $id)->first()
+   - [x] `src/Migrators/BouncerMigrator.php` - ✅ FIXED: findUser() now uses where($keyColumn, $id)->first()
+   - [x] `src/Database/Concerns/IsRole.php` - ✅ SAFE: Uses find() on integers after explicit grouping
 
 3. **Search Patterns**
    ```bash
@@ -48,13 +52,14 @@ $authority = $query->where(Models::getModelKeyFromClass($authorityClass), $autho
    rg "getModelKey" src/
    ```
 
-4. **Regression Test Required**
-   - [ ] Create test that configures User model with `ulid` keymap
-   - [ ] Create multiple users with different ULIDs
-   - [ ] Assign roles to each user via `Warden::assign()->to($user)`
-   - [ ] Assert each user received their assigned role (not just user 1)
-   - [ ] Test should fail on old code, pass on fixed code
-   - [ ] Add similar tests for abilities, removes, checks, syncs
+4. **Regression Test**
+   - [x] Create test that configures User model with `ulid` keymap
+   - [x] Create multiple users with different ULIDs
+   - [x] Assign roles to each user via `Warden::assign()->to($user)`
+   - [x] Assert each user received their assigned role (not just user 1)
+   - [x] Test should fail on old code, pass on fixed code
+   - [ ] TODO: Add similar tests for migrators (SpatieMigrator, BouncerMigrator)
+   - [ ] TODO: Add tests for edge cases (abilities, removes, checks, syncs)
 
 5. **Documentation**
    - [ ] Document the correct pattern for model lookups with keymaps
@@ -64,7 +69,20 @@ $authority = $query->where(Models::getModelKeyFromClass($authorityClass), $autho
 ### Impact
 **Critical** - This bug caused data corruption where all role assignments were incorrectly assigned to a single user instead of the intended users. Any production system using keymap configuration with non-default keys is affected.
 
-### Related Code
-- Fixed in: `src/Conductors/AssignsRoles.php:143`
-- New helper: `ModelRegistry::getModelKeyFromClass()`
-- Pattern source: `Support/Helpers::mapAuthorityByClass()`
+### Fixed Files
+1. **src/Conductors/AssignsRoles.php:143** - Authority lookup in assignRoles()
+2. **src/Migrators/SpatieMigrator.php:175-187** - findUser() method
+3. **src/Migrators/BouncerMigrator.php:285-304** - findUser() method
+4. **src/Database/ModelRegistry.php:497-506** - New getModelKeyFromClass() helper
+
+### Pattern
+**Wrong:**
+```php
+$authority = $query->find($authorityId); // Uses primary key, not keymap column
+```
+
+**Correct:**
+```php
+$keyColumn = Models::getModelKeyFromClass($authorityClass);
+$authority = $query->where($keyColumn, $authorityId)->first();
+```

@@ -175,13 +175,14 @@ final readonly class SpatieMigrator implements MigratorInterface
     private function findUser(mixed $userId): ?Model
     {
         $model = $this->userModel;
+        $keyColumn = Models::getModelKeyFromClass($model);
 
         if (in_array(SoftDeletes::class, class_uses_recursive($model), true)) {
             /** @phpstan-ignore-next-line method.nonObject (static call on class-string) */
-            return $model::withTrashed()->find($userId);
+            return $model::withTrashed()->where($keyColumn, $userId)->first();
         }
 
         /** @phpstan-ignore-next-line method.nonObject (static call on class-string) */
-        return $model::find($userId);
+        return $model::where($keyColumn, $userId)->first();
     }
 }
