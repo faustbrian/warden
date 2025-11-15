@@ -155,9 +155,7 @@ final class AssignsRoles
 
             // Get existing role IDs to avoid duplicates (accounting for scope)
             /** @phpstan-ignore-next-line Dynamic relationship */
-            $existingQuery = $authority->roles();
-            Models::scope()->applyToRelation($existingQuery);
-            $existing = $existingQuery->pluck(Models::table('roles').'.id')->all();
+            $existing = $authority->roles()->pluck(Models::table('roles').'.id')->all();
 
             // Only attach roles that don't already exist in this scope
             $toAttach = $roleIds->diff($existing);
