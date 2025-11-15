@@ -238,13 +238,10 @@ final class SyncsRolesAndAbilities
         $toDetach = array_diff($current, $ids);
         $this->detach($toDetach, $relation);
 
-        $toAttach = array_diff($ids, $current);
-        $baseData = Models::scope()->getAttachAttributes($this->authority);
-
         $relation->attach(
-            array_map(
-                fn (): array => PrimaryKeyGenerator::enrichPivotData($baseData),
-                array_flip($toAttach),
+            PrimaryKeyGenerator::enrichPivotDataForIds(
+                array_diff($ids, $current),
+                Models::scope()->getAttachAttributes($this->authority),
             ),
         );
     }

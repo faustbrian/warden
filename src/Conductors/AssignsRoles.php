@@ -165,9 +165,7 @@ final class AssignsRoles
             if ($toAttach->isNotEmpty()) {
                 /** @phpstan-ignore-next-line Dynamic relationship */
                 $authority->roles()->attach(
-                    $toAttach->mapWithKeys(fn ($roleId): array => [
-                        $roleId => PrimaryKeyGenerator::enrichPivotData($pivotData),
-                    ])->all(),
+                    PrimaryKeyGenerator::enrichPivotDataForIds($toAttach->all(), $pivotData),
                 );
             }
         }

@@ -180,15 +180,13 @@ trait AssociatesAbilities
             $attributes['context_type'] = $this->context->getMorphClass();
         }
 
-        $attachData = array_map(
-            fn (): array => PrimaryKeyGenerator::enrichPivotData(
+        /** @phpstan-ignore-next-line Dynamic abilities() relationship */
+        $authority->abilities()->attach(
+            PrimaryKeyGenerator::enrichPivotDataForIds(
+                $ids,
                 ['forbidden' => $this->forbidding] + $attributes,
             ),
-            array_flip($ids),
         );
-
-        /** @phpstan-ignore-next-line Dynamic abilities() relationship */
-        $authority->abilities()->attach($attachData);
     }
 
     /**
