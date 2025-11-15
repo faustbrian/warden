@@ -174,8 +174,9 @@ final class CleanCommand extends Command
 
         $query->whereNotIn($abilities.'.subject_id', function (QueryBuilder $query) use ($model): void {
             $table = $model->getTable();
+            $keyColumn = Models::getModelKey($model);
 
-            $query->from($table)->select($table.'.'.$model->getKeyName());
+            $query->from($table)->select($table.'.'.$keyColumn);
         });
     }
 

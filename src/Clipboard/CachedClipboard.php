@@ -357,7 +357,7 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
         ];
 
         if ($model->exists) {
-            $key = $model->getKey();
+            $key = $model->getAttribute(Models::getModelKey($model));
             assert($key !== null && (is_string($key) || is_int($key)));
             $abilities[] = sprintf('%s-%s-%s', $ability, $type, $key);
             $abilities[] = sprintf('*-%s-%s', $type, $key);
@@ -423,7 +423,7 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
             $this->tag(),
             $type,
             $model->getMorphClass(),
-            $model->getKey(),
+            $model->getAttribute(Models::getModelKey($model)),
             $allowed ? 'a' : 'f',
         ]);
     }

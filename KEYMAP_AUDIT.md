@@ -13,38 +13,38 @@
 ---
 
 ## Clipboard
-- [ ] src/Clipboard/AbstractClipboard.php
-- [ ] src/Clipboard/CachedClipboard.php
-- [ ] src/Clipboard/Clipboard.php
+- [x] ✅ src/Clipboard/AbstractClipboard.php - Safe: Gets role IDs (correct)
+- [x] 🔧 src/Clipboard/CachedClipboard.php - FIXED: Lines 360, 426 (cache keys for subjects)
+- [x] ✅ src/Clipboard/Clipboard.php - Safe: Gets ability IDs (correct)
 
 ## Conductors
-- [x] 🔧 src/Conductors/AssignsRoles.php - FIXED: Line 143 authority lookup
-- [ ] src/Conductors/ChecksRoles.php
-- [ ] src/Conductors/Concerns/AssociatesAbilities.php
-- [ ] src/Conductors/Concerns/ConductsAbilities.php
+- [x] 🔧 src/Conductors/AssignsRoles.php - FIXED: Line 143 authority lookup, Line 164 debug logging safe
+- [x] ✅ src/Conductors/ChecksRoles.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Conductors/Concerns/AssociatesAbilities.php - Safe: Already uses keymap values
+- [x] ✅ src/Conductors/Concerns/ConductsAbilities.php - Safe: No getKey/getKeyName usage
 - [x] 🔧 src/Conductors/Concerns/DisassociatesAbilities.php - FIXED: Line 113 getKey() to keymap value
-- [ ] src/Conductors/Concerns/FindsAndCreatesAbilities.php
-- [ ] src/Conductors/ForbidsAbilities.php
+- [x] ✅ src/Conductors/Concerns/FindsAndCreatesAbilities.php - Safe: Gets ability IDs (correct)
+- [x] ✅ src/Conductors/ForbidsAbilities.php - Safe: No getKey/getKeyName usage
 - [x] ✅ src/Conductors/GivesAbilities.php - Safe: No find() calls
-- [ ] src/Conductors/Lazy/ConductsAbilities.php
-- [ ] src/Conductors/Lazy/HandlesOwnership.php
+- [x] ✅ src/Conductors/Lazy/ConductsAbilities.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Conductors/Lazy/HandlesOwnership.php - Safe: No getKey/getKeyName usage
 - [x] ✅ src/Conductors/RemovesAbilities.php - Safe: Uses trait, no find()
-- [x] ✅ src/Conductors/RemovesRoles.php - Safe: Uses IDs in WHERE directly
+- [x] ✅ src/Conductors/RemovesRoles.php - Safe: Gets role IDs from role models (correct)
 - [x] 🔧 src/Conductors/SyncsRolesAndAbilities.php - FIXED: Line 264 getKey() to keymap value
-- [ ] src/Conductors/UnforbidsAbilities.php
+- [x] ✅ src/Conductors/UnforbidsAbilities.php - Safe: No getKey/getKeyName usage
 
 ## Console
-- [ ] src/Console/CleanCommand.php
-- [ ] src/Console/MigrateFromBouncerCommand.php
-- [ ] src/Console/MigrateFromSpatieCommand.php
+- [x] 🔧 src/Console/CleanCommand.php - FIXED: Line 178 (orphaned ability cleanup)
+- [x] ✅ src/Console/MigrateFromBouncerCommand.php - Safe: Uses migrator
+- [x] ✅ src/Console/MigrateFromSpatieCommand.php - Safe: Uses migrator
 
 ## Constraints
-- [ ] src/Constraints/Builder.php
-- [ ] src/Constraints/ColumnConstraint.php
-- [ ] src/Constraints/Constrainer.php
-- [ ] src/Constraints/Constraint.php
-- [ ] src/Constraints/Group.php
-- [ ] src/Constraints/ValueConstraint.php
+- [x] ✅ src/Constraints/Builder.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Constraints/ColumnConstraint.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Constraints/Constrainer.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Constraints/Constraint.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Constraints/Group.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Constraints/ValueConstraint.php - Safe: No getKey/getKeyName usage
 
 ## Contracts (Interfaces)
 - [x] ✅ src/Contracts/CachedClipboardInterface.php - Interface only
@@ -55,22 +55,22 @@
 ## Database Models
 - [x] ✅ src/Database/Ability.php - Model definition only
 - [x] ✅ src/Database/AssignedRole.php - Pivot model
-- [ ] src/Database/Concerns/Authorizable.php
-- [ ] src/Database/Concerns/HasAbilities.php
-- [ ] src/Database/Concerns/HasRoles.php
+- [x] ✅ src/Database/Concerns/Authorizable.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Database/Concerns/HasAbilities.php - Safe: Already uses keymap values
+- [x] ✅ src/Database/Concerns/HasRoles.php - Safe: Already uses keymap values
 - [x] ✅ src/Database/Concerns/HasWardenPrimaryKey.php - Key configuration only
-- [ ] src/Database/Concerns/IsAbility.php
+- [x] ✅ src/Database/Concerns/IsAbility.php - Safe: Already uses keymap values
 - [x] ✅ src/Database/Concerns/IsRole.php - Safe: getKey() usage is for role IDs (correct)
-- [ ] src/Database/HasRolesAndAbilities.php
-- [x] 🔧 src/Database/ModelRegistry.php - FIXED: Lines 317 (ownership check), 497-506 (new helper)
+- [x] ✅ src/Database/HasRolesAndAbilities.php - Trait composition only
+- [x] 🔧 src/Database/ModelRegistry.php - FIXED: Lines 317, 497-506; Line 544 safe (non-polymorphic ownership)
 - [x] ✅ src/Database/Models.php - Facade only
 - [x] ✅ src/Database/Permission.php - Pivot model
 - [x] 🔧 src/Database/Queries/Abilities.php - FIXED: Lines 120-126, 150-157 (keymap column/values)
 - [x] ✅ src/Database/Queries/AbilitiesForModel.php - Safe: Already uses keymap values
 - [x] 🔧 src/Database/Queries/Roles.php - FIXED: Lines 112-113, 117, 120 (keymap column)
 - [x] ✅ src/Database/Role.php - Model definition only
-- [ ] src/Database/Scope/Scope.php
-- [ ] src/Database/Scope/TenantScope.php
+- [x] ✅ src/Database/Scope/Scope.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Database/Scope/TenantScope.php - Safe: No getKey/getKeyName usage
 - [x] ✅ src/Database/Titles/AbilityTitle.php - Value object
 - [x] ✅ src/Database/Titles/RoleTitle.php - Value object
 - [x] ✅ src/Database/Titles/Title.php - Value object
@@ -87,13 +87,13 @@
 - [x] ✅ src/Facades/Warden.php - Facade only
 
 ## Core
-- [ ] src/Factory.php
-- [ ] src/Guard.php
-- [ ] src/Warden.php
+- [x] ✅ src/Factory.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Guard.php - Safe: No getKey/getKeyName usage
+- [x] ✅ src/Warden.php - Safe: No getKey/getKeyName usage
 - [x] ✅ src/WardenServiceProvider.php - Service provider only
 
 ## HTTP
-- [ ] src/Http/Middleware/ScopeWarden.php
+- [x] ✅ src/Http/Middleware/ScopeWarden.php - Safe: No getKey/getKeyName usage
 
 ## Migrators
 - [x] 🔧 src/Migrators/BouncerMigrator.php - FIXED: Lines 285-304 findUser()
@@ -107,11 +107,11 @@
 ---
 
 ## Summary
-- **Total Files**: 65
-- **Checked**: 33
-- **Safe**: 24
-- **Fixed**: 9
-- **Remaining**: 32
+- **Total Files**: 66
+- **Checked**: 66
+- **Safe**: 52
+- **Fixed**: 14
+- **Remaining**: 0
 
 ## Known Issues Fixed
 1. ✅ AssignsRoles::assignRoles() - Used find() with keymap value
@@ -125,6 +125,9 @@
 9. ✅ DisassociatesAbilities::getAbilitiesPivotQuery() - Used getKey()
 10. ✅ SyncsRolesAndAbilities::newPivotQuery() - Used getKey()
 11. ✅ Queries/Roles::constrainWhereAssignedTo() - Used getKeyName()
+12. ✅ CachedClipboard::compileModelAbilityIdentifiers() - Used getKey() for cache keys
+13. ✅ CachedClipboard::getCacheKey() - Used getKey() for cache keys
+14. ✅ CleanCommand::scopeQueryToWhereModelIsMissing() - Used getKeyName() for subject_id comparison
 
 ## Next Priority Files
 Focus on files that interact with pivot tables or morph relationships:
