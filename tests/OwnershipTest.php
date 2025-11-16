@@ -218,12 +218,12 @@ describe('Ownership Abilities', function (): void {
             $warden->allow($user1)->toOwn(Account::class);
 
             // Create accounts owned by different users using keymap values
-            $account1 = Account::query()->create(['name' => 'Account 1', 'id' => 1000]);
+            $account1 = Account::query()->create(['name' => 'Account 1', 'id' => 1_000]);
             $account1->actor_id = $user1->id; // Keymap value
             $account1->actor_type = $user1->getMorphClass();
             $account1->save();
 
-            $account2 = Account::query()->create(['name' => 'Account 2', 'id' => 2000]);
+            $account2 = Account::query()->create(['name' => 'Account 2', 'id' => 2_000]);
             $account2->actor_id = $user2->id; // Keymap value
             $account2->actor_type = $user2->getMorphClass();
             $account2->save();
@@ -252,12 +252,12 @@ describe('Ownership Abilities', function (): void {
             $warden->allow($charlie)->toOwn(Account::class);
 
             // Create accounts with specific owners using keymap values
-            $aliceAccount = Account::query()->create(['name' => 'Alice Account', 'id' => 1000]);
+            $aliceAccount = Account::query()->create(['name' => 'Alice Account', 'id' => 1_000]);
             $aliceAccount->actor_id = $alice->id; // Alice's keymap value
             $aliceAccount->actor_type = $alice->getMorphClass();
             $aliceAccount->save();
 
-            $bobAccount = Account::query()->create(['name' => 'Bob Account', 'id' => 2000]);
+            $bobAccount = Account::query()->create(['name' => 'Bob Account', 'id' => 2_000]);
             $bobAccount->actor_id = $bob->id; // Bob's keymap value
             $bobAccount->actor_type = $bob->getMorphClass();
             $bobAccount->save();

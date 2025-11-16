@@ -16,6 +16,7 @@ use Cline\Warden\Support\Helpers;
 use Cline\Warden\Support\PrimaryKeyGenerator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Log;
 
 use function array_map;
 use function assert;
@@ -160,7 +161,7 @@ final class AssignsRoles
             // Only attach roles that don't already exist in this scope
             $toAttach = $roleIds->diff($existing);
 
-            \Log::channel('migration')->debug('AssignsRoles debug', [
+            Log::channel('migration')->debug('AssignsRoles debug', [
                 'authority' => $authority->getKey(),
                 'roleIds' => $roleIds->toArray(),
                 'existing' => $existing,

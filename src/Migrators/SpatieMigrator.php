@@ -93,7 +93,7 @@ final readonly class SpatieMigrator implements MigratorInterface
 
             $result = Warden::guard($role->guard_name)->assign($role->name)->to($user);
 
-            Log::channel($this->logChannel)->debug(sprintf("Assignment result: %s", $result ? 'success' : 'failed'));
+            Log::channel($this->logChannel)->debug(sprintf('Assignment result: %s', $result ? 'success' : 'failed'));
             Log::channel($this->logChannel)->debug(sprintf("Assigned role '%s' to user: %s", $role->name, $user->email ?? $user->getKey()));
         }
     }

@@ -9,6 +9,7 @@
 
 use Cline\Warden\Clipboard\CachedClipboard;
 use Cline\Warden\Contracts\ClipboardInterface;
+use Cline\Warden\Database\Models;
 use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\FileStore;
 use Illuminate\Cache\TaggedCache;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
 use Tests\Fixtures\Models\Account;
 use Tests\Fixtures\Models\User;
+
+
 
 describe('CachedClipboard', function (): void {
     beforeEach(function (): void {
@@ -284,7 +287,7 @@ describe('CachedClipboard', function (): void {
     describe('Regression Tests - Keymap Support', function (): void {
         test('generates cache keys using keymap values not primary keys', function (): void {
             // Arrange - Configure keymap to use 'id' column
-            \Cline\Warden\Database\Models::enforceMorphKeyMap([
+            Models::enforceMorphKeyMap([
                 User::class => 'id',
             ]);
 
@@ -306,7 +309,7 @@ describe('CachedClipboard', function (): void {
 
         test('prevents ability cache leakage between users with custom keymap', function (): void {
             // Arrange - This tests the critical bug where cache keys used primary keys
-            \Cline\Warden\Database\Models::enforceMorphKeyMap([
+            Models::enforceMorphKeyMap([
                 User::class => 'id',
             ]);
 
@@ -332,7 +335,7 @@ describe('CachedClipboard', function (): void {
 
         test('cache refresh uses keymap values for cache key generation', function (): void {
             // Arrange - Configure keymap
-            \Cline\Warden\Database\Models::enforceMorphKeyMap([
+            Models::enforceMorphKeyMap([
                 User::class => 'id',
             ]);
 

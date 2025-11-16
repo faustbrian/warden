@@ -9,9 +9,12 @@
 
 use Cline\Warden\Console\CleanCommand;
 use Cline\Warden\Database\Ability;
+use Cline\Warden\Database\Models;
 use Illuminate\Console\Application as Artisan;
 use Tests\Fixtures\Models\Account;
 use Tests\Fixtures\Models\User;
+
+
 
 describe('CleanCommand', function (): void {
     beforeEach(function (): void {
@@ -141,15 +144,15 @@ describe('CleanCommand', function (): void {
     describe('Regression Tests - Keymap Support', function (): void {
         test('orphaned ability cleanup uses keymap column not primary key for comparison', function (): void {
             // Arrange - Configure keymap to use 'id' column
-            \Cline\Warden\Database\Models::enforceMorphKeyMap([
+            Models::enforceMorphKeyMap([
                 User::class => 'id',
                 Account::class => 'id',
             ]);
 
             $user1 = User::query()->create(['name' => 'Alice', 'id' => 100]);
             $user2 = User::query()->create(['name' => 'Bob', 'id' => 200]);
-            $account1 = Account::query()->create(['name' => 'Account 1', 'id' => 1000]);
-            $account2 = Account::query()->create(['name' => 'Account 2', 'id' => 2000]);
+            $account1 = Account::query()->create(['name' => 'Account 1', 'id' => 1_000]);
+            $account2 = Account::query()->create(['name' => 'Account 2', 'id' => 2_000]);
 
             $warden = $this->bouncer($user1)->dontCache();
             $warden->allow($user1)->to('update', $user1);
@@ -177,7 +180,7 @@ describe('CleanCommand', function (): void {
 
         test('prevents false orphan detection with custom keymap configuration', function (): void {
             // Arrange - This tests the critical bug where getKeyName() was used
-            \Cline\Warden\Database\Models::enforceMorphKeyMap([
+            Models::enforceMorphKeyMap([
                 User::class => 'id',
             ]);
 

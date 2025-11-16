@@ -27,8 +27,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 
-
-
 /**
  * Facade for accessing Warden authorization functionality.
  *
@@ -54,7 +52,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static ClipboardInterface     getClipboard()                                                                                                              Get the clipboard instance
  * @method static Gate|null              getGate()                                                                                                                   Get gate instance or null
  * @method static string                 getGuardName()                                                                                                              Get current guard name
- * @method static WardenService   guard((\BackedEnum|string) $guardName)                                                                                      Create guard-scoped Warden instance
+ * @method static WardenService          guard((\BackedEnum|string) $guardName)                                                                                      Create guard-scoped Warden instance
  * @method static Gate                   gate()                                                                Get gate instance (throws if not set)
  * @method static ChecksRoles            is(Model $authority)                                                                                                        Check roles for authority
  * @method static self                   ownedVia(string|\Closure $model, string|\Closure|null $attribute = null)                                                    Configure ownership checks
@@ -76,7 +74,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool                   usesCachedClipboard()                                                                                                       Check if using cached clipboard
  * @method static self                   useUserModel(string $model)                                                                                                 Set custom user model
  *
- * @see \Cline\Warden\Warden
+ * @see WardenService
  *
  * @author Brian Faust <brian@cline.sh>
  */

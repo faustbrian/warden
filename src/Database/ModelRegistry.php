@@ -502,7 +502,7 @@ final class ModelRegistry
 
         throw_if($this->enforceKeyMap, MorphKeyViolationException::class, $class);
 
-        return (new $class())->getKeyName();
+        return new $class()->getKeyName();
     }
 
     /**
