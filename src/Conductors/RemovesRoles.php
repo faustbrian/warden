@@ -110,7 +110,7 @@ final readonly class RemovesRoles
      * Role models provide their IDs directly, while string names require
      * a database lookup to find matching role records.
      *
-     * @return array<int> Array of role primary key values
+     * @return array<int|string> Array of role primary key values
      */
     private function getRoleIds(): array
     {
@@ -122,12 +122,12 @@ final readonly class RemovesRoles
         /** @var Collection<int, string> $names */
         $names = $partitions->get(1, new Collection());
 
-        /** @var Collection<int, int> $ids */
-        $ids = $models->map(function (Model $model): int {
+        /** @var Collection<int, int|string> $ids */
+        $ids = $models->map(function (Model $model): int|string {
             $key = $model->getKey();
             assert(is_int($key) || is_string($key));
 
-            return (int) $key;
+            return $key;
         });
 
         if ($names->count()) {
