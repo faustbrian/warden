@@ -19,6 +19,7 @@ use Cline\Warden\Contracts\ClipboardInterface;
 use Cline\Warden\Contracts\ScopeInterface;
 use Cline\Warden\Database\Ability;
 use Cline\Warden\Database\Role;
+use Cline\Warden\Warden as WardenService;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Cache\Store;
@@ -53,7 +54,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static ClipboardInterface     getClipboard()                                                                                                              Get the clipboard instance
  * @method static Gate|null              getGate()                                                                                                                   Get gate instance or null
  * @method static string                 getGuardName()                                                                                                              Get current guard name
- * @method static \Cline\Warden\Warden   guard((\BackedEnum|string) $guardName)                                                                                      Create guard-scoped Warden instance
+ * @method static WardenService   guard((\BackedEnum|string) $guardName)                                                                                      Create guard-scoped Warden instance
  * @method static Gate                   gate()                                                                Get gate instance (throws if not set)
  * @method static ChecksRoles            is(Model $authority)                                                                                                        Check roles for authority
  * @method static self                   ownedVia(string|\Closure $model, string|\Closure|null $attribute = null)                                                    Configure ownership checks
@@ -91,6 +92,6 @@ final class Warden extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return \Cline\Warden\Warden::class;
+        return WardenService::class;
     }
 }
