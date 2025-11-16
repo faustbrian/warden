@@ -39,14 +39,14 @@ beforeEach(function (): void {
         ->create();
 
     // Bind facade to Laravel's container
-    $this->app->singleton(WardenFacade::class, fn (): Warden => $this->wardenInstance);
+    $this->app->singleton(Warden::class, fn (): Warden => $this->wardenInstance);
 
     // Set facade root using reflection to work around facade caching
     WardenFacade::setFacadeApplication($this->app);
 });
 afterEach(function (): void {
     // Clear facade cache
-    WardenFacade::clearResolvedInstance(WardenFacade::class);
+    WardenFacade::clearResolvedInstance(Warden::class);
 });
 test('returns correct facade accessor for service container resolution', function (): void {
     // Arrange
@@ -57,7 +57,7 @@ test('returns correct facade accessor for service container resolution', functio
     $accessor = $method->invoke(null);
 
     // Assert
-    expect($accessor)->toBe(WardenFacade::class);
+    expect($accessor)->toBe(Warden::class);
 })->group('happy-path');
 test('proxies allow method to underlying warden instance', function (): void {
     // Arrange
@@ -284,13 +284,13 @@ test('proxies use role model method and returns facade instance for chaining', f
 test('facade resolves instance from container on first access', function (): void {
     // Arrange
     $resolveCount = 0;
-    $this->app->singleton(WardenFacade::class, function () use (&$resolveCount): Warden {
+    $this->app->singleton(Warden::class, function () use (&$resolveCount): Warden {
         ++$resolveCount;
 
         return $this->wardenInstance;
     });
 
-    WardenFacade::clearResolvedInstance(WardenFacade::class);
+    WardenFacade::clearResolvedInstance(Warden::class);
 
     // Act
     WardenFacade::getClipboard();

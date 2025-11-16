@@ -151,7 +151,7 @@ final readonly class SpatieMigrator implements MigratorInterface
                 continue;
             }
 
-            Warden::guard($permission->guard_name)->allow(Warden::role($role->name))->to($permission->name);
+            Warden::guard($permission->guard_name)->allow($role->name)->to($permission->name);
             Log::channel($this->logChannel)->debug(sprintf("Granted permission '%s' to role: %s", $permission->name, $role->name));
         }
     }
