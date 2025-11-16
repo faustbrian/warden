@@ -202,7 +202,7 @@ final class AssignsRoles
                 if ($roleModel) {
                     $result->push($roleModel);
                 }
-            } elseif (is_string($role) && CharDetector::isUuidOrUlid($role)) {
+            } elseif (CharDetector::isUuidOrUlid($role)) {
                 // Look up role by ULID/UUID string ID
                 $roleModel = Models::role()::query()->find($role);
 

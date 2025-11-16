@@ -56,6 +56,7 @@ final class Clipboard extends AbstractClipboard
 
         // The Ability model key can be int, string (ULID/UUID), or null
         assert($key !== null);
+        assert(\is_int($key) || \is_string($key));
 
         return $key;
     }

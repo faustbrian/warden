@@ -23,6 +23,7 @@ use function assert;
 use function class_uses_recursive;
 use function config;
 use function in_array;
+use function is_int;
 use function is_string;
 use function json_decode;
 use function sprintf;
@@ -129,6 +130,7 @@ final readonly class BouncerMigrator implements MigratorInterface
 
         foreach ($assignments as $assignment) {
             assert($assignment->entity_id !== null && $assignment->role_id !== null);
+            assert(is_int($assignment->entity_id) && is_int($assignment->role_id));
 
             $user = $this->findUser($assignment->entity_id);
 
@@ -167,6 +169,7 @@ final readonly class BouncerMigrator implements MigratorInterface
 
         foreach ($permissions as $permission) {
             assert($permission->entity_id !== null && $permission->ability_id !== null);
+            assert(is_int($permission->entity_id) && is_int($permission->ability_id));
 
             $user = $this->findUser($permission->entity_id);
 
@@ -213,6 +216,7 @@ final readonly class BouncerMigrator implements MigratorInterface
 
         foreach ($permissions as $permission) {
             assert($permission->ability_id !== null && $permission->entity_id !== null);
+            assert(is_int($permission->ability_id) && is_int($permission->entity_id));
 
             $ability = DB::table($this->getTableName('abilities'))->find($permission->ability_id);
 

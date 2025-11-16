@@ -167,7 +167,7 @@ final readonly class RemovesRoles
      * orWhere clauses to handle multiple authority-role pairs efficiently
      * in a single database query.
      *
-     * @param array<int>        $roleIds        Array of role primary keys to detach from authorities
+     * @param array<int|string> $roleIds        Array of role primary keys to detach from authorities
      * @param class-string      $authorityClass The fully-qualified class name of the authority model
      * @param array<int|string> $authorityIds   Array of authority primary keys from which to remove roles
      */
