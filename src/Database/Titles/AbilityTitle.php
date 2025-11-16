@@ -257,9 +257,7 @@ final class AbilityTitle extends Title
         $name = $ability->name === '*' ? 'manage' : $ability->name;
         assert($ability->subject_type !== null);
 
-        return $this->humanize(
-            $name.' '.$this->basename($ability->subject_type).' #'.$ability->subject_id,
-        );
+        return $this->humanize($name.' '.$this->basename($ability->subject_type)).' #'.$ability->subject_id;
     }
 
     /**
