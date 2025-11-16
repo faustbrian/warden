@@ -161,6 +161,24 @@ describe('Syncing Roles and Abilities', function (): void {
             // Verify roles remain assigned
             expect($warden->is($user)->all($admin, $editor))->toBeTrue();
         })->with('bouncerProvider');
+
+        test('sync creates non-existent roles automatically', function ($provider): void {
+            // Arrange
+            [$warden, $user] = $provider();
+
+            // Ensure roles don't exist
+            Role::query()->whereIn('name', ['sync-test-1', 'sync-test-2'])->delete();
+
+            // Act - Sync with role names that don't exist yet
+            $warden->sync($user)->roles(['sync-test-1', 'sync-test-2']);
+
+            // Assert - Verify roles were created
+            expect(Role::query()->where('name', 'sync-test-1')->exists())->toBeTrue();
+            expect(Role::query()->where('name', 'sync-test-2')->exists())->toBeTrue();
+
+            // Assert - Verify user has the roles
+            expect($warden->is($user)->all('sync-test-1', 'sync-test-2'))->toBeTrue();
+        })->with('bouncerProvider');
     });
 
     describe('Edge Cases', function (): void {
