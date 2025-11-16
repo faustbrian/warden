@@ -320,5 +320,86 @@ describe('HasWardenPrimaryKey Trait', function (): void {
                 ->and($role->getKeyType())->toBe('string');
         })->group('edge-case');
 
+        test('bootHasWardenPrimaryKey sets ULID when no key is set', function (): void {
+            // Arrange
+            config(['warden.primary_key_type' => PrimaryKeyType::ULID->value]);
+            $role = new Role(['name' => 'admin', 'title' => 'Administrator']);
+
+            // Verify the ID is NOT set before the event
+            expect($role->getAttribute('id'))->toBeNull();
+
+            // Act - Fire creating event using reflection
+            $reflection = new ReflectionClass($role);
+            $method = $reflection->getMethod('fireModelEvent');
+            $method->setAccessible(true);
+            $method->invoke($role, 'creating');
+
+            // Assert - A ULID should have been generated and set
+            expect($role->getAttribute('id'))->not->toBeNull()
+                ->and($role->getAttribute('id'))->toBeString()
+                ->and(strlen($role->getAttribute('id')))->toBe(26); // ULID is 26 chars
+        })->group('edge-case');
+
+        test('bootHasWardenPrimaryKey sets UUID when no key is set', function (): void {
+            // Arrange
+            config(['warden.primary_key_type' => PrimaryKeyType::UUID->value]);
+            $role = new Role(['name' => 'admin', 'title' => 'Administrator']);
+
+            // Verify the ID is NOT set before the event
+            expect($role->getAttribute('id'))->toBeNull();
+
+            // Act - Fire creating event using reflection
+            $reflection = new ReflectionClass($role);
+            $method = $reflection->getMethod('fireModelEvent');
+            $method->setAccessible(true);
+            $method->invoke($role, 'creating');
+
+            // Assert - A UUID should have been generated and set
+            expect($role->getAttribute('id'))->not->toBeNull()
+                ->and($role->getAttribute('id'))->toBeString()
+                ->and(strlen($role->getAttribute('id')))->toBe(36); // UUID is 36 chars
+        })->group('edge-case');
+
+        test('bootHasWardenPrimaryKey skips setting key when already set for ULID type', function (): void {
+            // Arrange
+            config(['warden.primary_key_type' => PrimaryKeyType::ULID->value]);
+            $customUlid = (string) Str::ulid();
+            $role = new Role(['name' => 'admin', 'title' => 'Administrator']);
+            $role->setAttribute('id', $customUlid);
+
+            // Verify the ID is set before the event
+            $idBefore = $role->getAttribute('id');
+
+            // Act - Fire creating event using reflection
+            $reflection = new ReflectionClass($role);
+            $method = $reflection->getMethod('fireModelEvent');
+            $method->setAccessible(true);
+            $method->invoke($role, 'creating');
+
+            // Assert - The custom ULID should be preserved (not overridden)
+            expect($role->getAttribute('id'))->toBe($idBefore)
+                ->and($role->getAttribute('id'))->toBe($customUlid);
+        })->group('edge-case');
+
+        test('bootHasWardenPrimaryKey skips setting key when already set for UUID type', function (): void {
+            // Arrange
+            config(['warden.primary_key_type' => PrimaryKeyType::UUID->value]);
+            $customUuid = (string) Str::uuid();
+            $role = new Role(['name' => 'admin', 'title' => 'Administrator']);
+            $role->setAttribute('id', $customUuid);
+
+            // Verify the ID is set before the event
+            $idBefore = $role->getAttribute('id');
+
+            // Act - Fire creating event using reflection
+            $reflection = new ReflectionClass($role);
+            $method = $reflection->getMethod('fireModelEvent');
+            $method->setAccessible(true);
+            $method->invoke($role, 'creating');
+
+            // Assert - The custom UUID should be preserved (not overridden)
+            expect($role->getAttribute('id'))->toBe($idBefore)
+                ->and($role->getAttribute('id'))->toBe($customUuid);
+        })->group('edge-case');
     });
 });
