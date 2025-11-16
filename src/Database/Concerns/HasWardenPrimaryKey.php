@@ -27,20 +27,6 @@ use function config;
 trait HasWardenPrimaryKey
 {
     /**
-     * Get the casts array with dynamic primary key casting.
-     */
-    public function getCasts(): array
-    {
-        $casts = parent::getCasts();
-
-        if (\in_array($this->getKeyName(), $this->uniqueIds(), true)) {
-            $casts[$this->getKeyName()] = 'string';
-        }
-
-        return $casts;
-    }
-
-    /**
      * Get the value indicating whether the IDs are incrementing.
      */
     public function getIncrementing(): bool
