@@ -83,3 +83,18 @@ test\:docker\:postgres\:ulid: build
 test\:docker\:postgres\:uuid: build
 	docker-compose up -d postgres
 	docker-compose run --rm -e DB_CONNECTION=pgsql -e DB_HOST=postgres -e DB_PORT=5432 -e DB_DATABASE=warden_test -e DB_USERNAME=postgres -e DB_PASSWORD=password -e WARDEN_PRIMARY_KEY_TYPE=uuid -e WARDEN_ACTOR_MORPH_TYPE=uuidMorph -e WARDEN_CONTEXT_MORPH_TYPE=uuidMorph -e WARDEN_SUBJECT_MORPH_TYPE=uuidMorph php84 vendor/bin/pest
+
+# Local tests (without Docker) for different primary key types
+test\:local: build
+	vendor/bin/pest --parallel
+
+test\:local\:id: build
+	vendor/bin/pest --parallel
+
+test\:local\:ulid: build
+	vendor/bin/pest --parallel --configuration=phpunit.ulid.xml
+
+test\:local\:uuid: build
+	vendor/bin/pest --parallel --configuration=phpunit.uuid.xml
+
+test\:local\:all: test\:local\:id test\:local\:ulid test\:local\:uuid

@@ -129,7 +129,7 @@ final readonly class BouncerMigrator implements MigratorInterface
             ->get();
 
         foreach ($assignments as $assignment) {
-            assert(is_int($assignment->entity_id) && is_int($assignment->role_id));
+            assert($assignment->entity_id !== null && $assignment->role_id !== null);
 
             $user = $this->findUser($assignment->entity_id);
 
@@ -167,7 +167,7 @@ final readonly class BouncerMigrator implements MigratorInterface
             ->get();
 
         foreach ($permissions as $permission) {
-            assert(is_int($permission->entity_id) && is_int($permission->ability_id));
+            assert($permission->entity_id !== null && $permission->ability_id !== null);
 
             $user = $this->findUser($permission->entity_id);
 
@@ -213,7 +213,7 @@ final readonly class BouncerMigrator implements MigratorInterface
             ->get();
 
         foreach ($permissions as $permission) {
-            assert(is_int($permission->ability_id) && is_int($permission->entity_id));
+            assert($permission->ability_id !== null && $permission->entity_id !== null);
 
             $ability = DB::table($this->getTableName('abilities'))->find($permission->ability_id);
 

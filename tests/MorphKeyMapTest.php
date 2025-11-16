@@ -89,8 +89,8 @@ describe('MorphKeyMap', function (): void {
             // Act
             $key = Models::getModelKey($org);
 
-            // Assert
-            expect($key)->toBe('id');
+            // Assert - Falls back to model's actual configured key name
+            expect($key)->toBe($org->getKeyName());
         });
 
         test('does not throw with enforcement when mapping exists', function (): void {
@@ -162,10 +162,10 @@ describe('MorphKeyMap', function (): void {
             // Act
             Models::reset();
 
-            // Assert
+            // Assert - After reset, falls back to model's actual configured key name
             $org = Organization::query()->create(['name' => 'Acme']);
             $key = Models::getModelKey($org);
-            expect($key)->toBe('id');
+            expect($key)->toBe($org->getKeyName());
         });
     });
 });

@@ -8,6 +8,7 @@
  */
 
 use Cline\Warden\Conductors\RemovesRoles;
+use Cline\Warden\Database\AssignedRole;
 use Cline\Warden\Database\Role;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Fixtures\Models\User;
@@ -21,20 +22,16 @@ describe('RemovesRoles Conductor', function (): void {
             $editorRole = Role::query()->create(['name' => 'editor']);
 
             // Assign both roles to the user
-            $this->db()
-                ->table('assigned_roles')
-                ->insert([
-                    [
-                        'role_id' => $adminRole->id,
-                        'actor_id' => $user->id,
-                        'actor_type' => $user->getMorphClass(),
-                    ],
-                    [
-                        'role_id' => $editorRole->id,
-                        'actor_id' => $user->id,
-                        'actor_type' => $user->getMorphClass(),
-                    ],
-                ]);
+            AssignedRole::query()->create([
+                'role_id' => $adminRole->id,
+                'actor_id' => $user->id,
+                'actor_type' => $user->getMorphClass(),
+            ]);
+            AssignedRole::query()->create([
+                'role_id' => $editorRole->id,
+                'actor_id' => $user->id,
+                'actor_type' => $user->getMorphClass(),
+            ]);
 
             // Remove admin role and a non-existent role
             $conductor = new RemovesRoles(['admin', 'non-existent-role']);
@@ -101,13 +98,11 @@ describe('RemovesRoles Conductor', function (): void {
             $existingRole = Role::query()->create(['name' => 'admin']);
 
             // Assign the existing role to the user
-            $this->db()
-                ->table('assigned_roles')
-                ->insert([
-                    'role_id' => $existingRole->id,
-                    'actor_id' => $user->id,
-                    'actor_type' => $user->getMorphClass(),
-                ]);
+            AssignedRole::query()->create([
+                'role_id' => $existingRole->id,
+                'actor_id' => $user->id,
+                'actor_type' => $user->getMorphClass(),
+            ]);
 
             $conductor = new RemovesRoles(['non-existent-role']);
 

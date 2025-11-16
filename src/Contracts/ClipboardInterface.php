@@ -50,9 +50,9 @@ interface ClipboardInterface
      * @param  Model             $authority The authority to check permissions for
      * @param  string            $ability   The ability name to check
      * @param  null|Model|string $model     The specific model instance or class name to check against
-     * @return null|bool|int     The ability ID if authorized, false if not authorized, null if ability doesn't exist
+     * @return null|bool|int|string The ability ID if authorized, false if not authorized, null if ability doesn't exist
      */
-    public function checkGetId(Model $authority, string $ability, Model|string|null $model = null): null|bool|int;
+    public function checkGetId(Model $authority, string $ability, Model|string|null $model = null): null|bool|int|string;
 
     /**
      * Check if the authority has any or all of the specified roles.

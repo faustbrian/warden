@@ -105,7 +105,7 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
      * @param  null|Model|string $model     Optional model to scope the ability check
      * @return null|false|int    False if forbidden, ability ID if allowed, null if not found
      */
-    public function checkGetId(Model $authority, string $ability, Model|string|null $model = null): false|int|null
+    public function checkGetId(Model $authority, string $ability, Model|string|null $model = null): false|int|string|null
     {
         $applicable = $this->compileAbilityIdentifiers($ability, $model);
 
@@ -256,7 +256,7 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
      * @param  Model                                             $authority  The authority performing the check
      * @return null|int                                          The matched ability ID, or null if no match found
      */
-    private function findMatchingAbility(Collection|BaseCollection $abilities, BaseCollection $applicable, mixed $model, Model $authority): ?int
+    private function findMatchingAbility(Collection|BaseCollection $abilities, BaseCollection $applicable, mixed $model, Model $authority): int|string|null
     {
         /** @var BaseCollection<int, string> */
         $abilities = $abilities->toBase()->pluck('identifier', 'id');
@@ -286,9 +286,9 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
      *
      * @param  BaseCollection<int, string> $abilityMap Map of ability IDs to their identifiers
      * @param  BaseCollection<int, string> $applicable Collection of applicable ability identifiers
-     * @return null|int                    The matched ability ID, or null if no match
+     * @return int|string|null             The matched ability ID, or null if no match
      */
-    private function getMatchedAbilityId(BaseCollection $abilityMap, BaseCollection $applicable): ?int
+    private function getMatchedAbilityId(BaseCollection $abilityMap, BaseCollection $applicable): int|string|null
     {
         foreach ($abilityMap as $id => $identifier) {
             if ($applicable->contains($identifier)) {

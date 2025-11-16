@@ -41,7 +41,7 @@ final class Clipboard extends AbstractClipboard
      * @param  null|Model|string $model     Optional model to scope the ability check
      * @return null|bool|int     False if forbidden, ability ID if allowed, null if no permission found
      */
-    public function checkGetId(Model $authority, string $ability, Model|string|null $model = null): bool|int|null
+    public function checkGetId(Model $authority, string $ability, Model|string|null $model = null): bool|int|string|null
     {
         if ($this->isForbidden($authority, $ability, $model)) {
             return false;
