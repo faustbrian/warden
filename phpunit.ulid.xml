@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+    colors="true"
+    stopOnError="true"
+    stopOnFailure="true"
+    cacheDirectory=".phpunit.cache">
+    <php>
+        <env name="WARDEN_PRIMARY_KEY_TYPE" value="ulid" />
+        <env name="WARDEN_ACTOR_MORPH_TYPE" value="ulidMorph" />
+        <env name="WARDEN_CONTEXT_MORPH_TYPE" value="ulidMorph" />
+        <env name="WARDEN_SUBJECT_MORPH_TYPE" value="ulidMorph" />
+    </php>
+    <source>
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+        <exclude>
+            <file>./src/WardenServiceProvider.php</file>
+        </exclude>
+    </source>
+    <testsuites>
+        <testsuite name="default">
+            <directory suffix=".php">./tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
