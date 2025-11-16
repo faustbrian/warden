@@ -12,7 +12,7 @@ use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Role;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use PHPUnit\Framework\Attributes\Test;
+use ReflectionClass;
 use Tests\Fixtures\Models\User;
 
 test('auto generates title when creating role', function (): void {
@@ -591,3 +591,132 @@ test('creates assign records with scope attributes', function (): void {
     // Cleanup
     Models::scope()->to(null);
 })->group('happy-path');
+test('generates ULID primary key when assigning roles with ULID configuration', function (): void {
+    // Arrange
+    $role = Role::query()->create(['name' => 'admin']);
+    $user = User::query()->create(['name' => 'Test User']);
+
+    config(['warden.primary_key_type' => 'ulid']);
+
+    // Use reflection to access protected createAssignRecords method
+    $reflection = new ReflectionClass($role);
+    $method = $reflection->getMethod('createAssignRecords');
+
+    // Act
+    $records = $method->invoke($role, $user, [$user->id]);
+
+    // Assert
+    expect($records)->toBeArray()
+        ->and($records)->toHaveCount(1)
+        ->and($records[0])->toHaveKey('id')
+        ->and($records[0]['id'])->toBeString()
+        ->and(mb_strlen((string) $records[0]['id']))->toBe(26) // ULID is 26 characters
+        ->and($records[0]['role_id'])->toBe($role->id)
+        ->and($records[0]['actor_id'])->toBe($user->id)
+        ->and($records[0]['actor_type'])->toBe($user->getMorphClass());
+
+    // Cleanup
+    config(['warden.primary_key_type' => 'id']);
+})->group('edge-case');
+test('generates UUID primary key when assigning roles with UUID configuration', function (): void {
+    // Arrange
+    $role = Role::query()->create(['name' => 'editor']);
+    $user = User::query()->create(['name' => 'Test User']);
+
+    config(['warden.primary_key_type' => 'uuid']);
+
+    // Use reflection to access protected createAssignRecords method
+    $reflection = new ReflectionClass($role);
+    $method = $reflection->getMethod('createAssignRecords');
+
+    // Act
+    $records = $method->invoke($role, $user, [$user->id]);
+
+    // Assert
+    expect($records)->toBeArray()
+        ->and($records)->toHaveCount(1)
+        ->and($records[0])->toHaveKey('id')
+        ->and($records[0]['id'])->toBeString()
+        ->and(mb_strlen((string) $records[0]['id']))->toBe(36) // UUID is 36 characters (with hyphens)
+        ->and($records[0]['role_id'])->toBe($role->id)
+        ->and($records[0]['actor_id'])->toBe($user->id)
+        ->and($records[0]['actor_type'])->toBe($user->getMorphClass());
+
+    // Cleanup
+    config(['warden.primary_key_type' => 'id']);
+})->group('edge-case');
+test('does not set primary key when using auto-increment ID configuration', function (): void {
+    // Arrange
+    config(['warden.primary_key_type' => 'id']);
+    $role = Role::query()->create(['name' => 'viewer']);
+    $user = User::query()->create(['name' => 'Test User']);
+
+    // Use reflection to access protected createAssignRecords method
+    $reflection = new ReflectionClass($role);
+    $method = $reflection->getMethod('createAssignRecords');
+
+    // Act
+    $records = $method->invoke($role, $user, [$user->id]);
+
+    // Assert
+    expect($records)->toBeArray()
+        ->and($records)->toHaveCount(1)
+        ->and($records[0])->not->toHaveKey('id') // Auto-increment should not have 'id' key
+        ->and($records[0]['role_id'])->toBe($role->id)
+        ->and($records[0]['actor_id'])->toBe($user->id)
+        ->and($records[0]['actor_type'])->toBe($user->getMorphClass());
+})->group('edge-case');
+test('generates unique ULID for each assigned role record', function (): void {
+    // Arrange
+    $role = Role::query()->create(['name' => 'moderator']);
+    $user1 = User::query()->create(['name' => 'User 1']);
+    $user2 = User::query()->create(['name' => 'User 2']);
+
+    config(['warden.primary_key_type' => 'ulid']);
+
+    // Use reflection to access protected createAssignRecords method
+    $reflection = new ReflectionClass($role);
+    $method = $reflection->getMethod('createAssignRecords');
+
+    // Act
+    $records = $method->invoke($role, $user1, [$user1->id, $user2->id]);
+
+    // Assert
+    expect($records)->toBeArray()
+        ->and($records)->toHaveCount(2)
+        ->and($records[0])->toHaveKey('id')
+        ->and($records[1])->toHaveKey('id')
+        ->and($records[0]['id'])->not->toBe($records[1]['id']) // Each record gets unique ULID
+        ->and(mb_strlen((string) $records[0]['id']))->toBe(26)
+        ->and(mb_strlen((string) $records[1]['id']))->toBe(26);
+
+    // Cleanup
+    config(['warden.primary_key_type' => 'id']);
+})->group('edge-case');
+test('generates unique UUID for each assigned role record', function (): void {
+    // Arrange
+    $role = Role::query()->create(['name' => 'contributor']);
+    $user1 = User::query()->create(['name' => 'User 1']);
+    $user2 = User::query()->create(['name' => 'User 2']);
+
+    config(['warden.primary_key_type' => 'uuid']);
+
+    // Use reflection to access protected createAssignRecords method
+    $reflection = new ReflectionClass($role);
+    $method = $reflection->getMethod('createAssignRecords');
+
+    // Act
+    $records = $method->invoke($role, $user1, [$user1->id, $user2->id]);
+
+    // Assert
+    expect($records)->toBeArray()
+        ->and($records)->toHaveCount(2)
+        ->and($records[0])->toHaveKey('id')
+        ->and($records[1])->toHaveKey('id')
+        ->and($records[0]['id'])->not->toBe($records[1]['id']) // Each record gets unique UUID
+        ->and(mb_strlen((string) $records[0]['id']))->toBe(36)
+        ->and(mb_strlen((string) $records[1]['id']))->toBe(36);
+
+    // Cleanup
+    config(['warden.primary_key_type' => 'id']);
+})->group('edge-case');

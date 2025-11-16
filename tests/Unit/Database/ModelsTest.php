@@ -232,5 +232,39 @@ describe('Models', function (): void {
             $this->expectException(MorphKeyViolationException::class);
             Models::getModelKey($user);
         });
+
+        test('getModelKeyFromClass returns mapped key for class string', function (): void {
+            // Arrange
+            Models::morphKeyMap([User::class => 'uuid']);
+
+            // Act
+            $result = Models::getModelKeyFromClass(User::class);
+
+            // Assert
+            expect($result)->toBe('uuid');
+        });
+
+        test('getModelKeyFromClass returns default key when not mapped', function (): void {
+            // Arrange
+            // No mapping configured
+
+            // Act
+            $result = Models::getModelKeyFromClass(User::class);
+
+            // Assert
+            expect($result)->toBe(
+                new User()->getKeyName()
+            );
+        });
+
+        test('getModelKeyFromClass throws exception when enforcement enabled and not mapped', function (): void {
+            // Arrange
+            Models::enforceMorphKeyMap([Account::class => 'id']);
+
+            // Act & Assert
+            $this->expectException(MorphKeyViolationException::class);
+            $this->expectExceptionMessage(User::class);
+            Models::getModelKeyFromClass(User::class);
+        });
     });
 });

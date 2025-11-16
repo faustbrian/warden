@@ -285,6 +285,30 @@ describe('SpatieMigrator', function (): void {
             $this->assertDatabaseMissing('assigned_roles', ['actor_id' => $user->id]);
         });
 
+        test('skips direct permission migration when user does not exist', function (): void {
+            // Arrange
+            $permissionId = DB::table('spatie_permissions')->insertGetId([
+                'name' => 'edit-articles',
+                'guard_name' => 'web',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            insertWithoutForeignKeyChecks('spatie_model_has_permissions', [
+                'permission_id' => $permissionId,
+                'model_type' => 'user',
+                'model_id' => 99_999, // Non-existent user
+            ]);
+
+            $migrator = new SpatieMigrator(User::class);
+
+            // Act
+            $migrator->migrate();
+
+            // Assert - Permission assignment should be skipped for non-existent user
+            $this->assertDatabaseMissing('permissions', ['actor_id' => 99_999]);
+        });
+
         test('skips migration for non-existent permission', function (): void {
             // Arrange
             $user = User::query()->create(['name' => 'Charlie Brown']);
