@@ -60,7 +60,7 @@ describe('HasWardenPrimaryKey Trait', function (): void {
             // Assert
             expect($role->id)->toBeInt()
                 ->and($role->id)->toBeGreaterThan(0);
-        })->group('happy-path');
+        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type')->group('happy-path');
 
         test('uniqueIds returns array with primary key name', function (): void {
             // Arrange
@@ -90,7 +90,7 @@ describe('HasWardenPrimaryKey Trait', function (): void {
             // Assert - ID should be null before save, then auto-generated
             expect($keyBeforeSave)->toBeNull()
                 ->and($role->id)->toBeInt();
-        })->group('happy-path');
+        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type')->group('happy-path');
 
         test('PrimaryKeyGenerator generates null for ID type', function (): void {
             // Arrange
@@ -103,7 +103,7 @@ describe('HasWardenPrimaryKey Trait', function (): void {
             expect($primaryKey->isAutoIncrementing())->toBeTrue()
                 ->and($primaryKey->value)->toBeNull()
                 ->and($primaryKey->requiresValue())->toBeFalse();
-        })->group('happy-path');
+        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type')->group('happy-path');
 
         test('PrimaryKeyGenerator generates ULID for ULID type', function (): void {
             // Arrange
@@ -184,7 +184,7 @@ describe('HasWardenPrimaryKey Trait', function (): void {
             // Assert
             expect($role->getIncrementing())->toBeTrue()
                 ->and($role->getKeyType())->toBe('int');
-        })->group('edge-case');
+        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type')->group('edge-case');
     });
 
     describe('Edge Cases - Uniqueness of Generated Keys', function (): void {
@@ -264,7 +264,7 @@ describe('HasWardenPrimaryKey Trait', function (): void {
             // Assert
             expect($role->id)->toBeInt()
                 ->and($role->id)->toBeGreaterThan(0);
-        })->group('sad-path');
+        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type')->group('sad-path');
 
         test('PrimaryKeyGenerator falls back to ID type for invalid config', function (): void {
             // Arrange
@@ -293,7 +293,7 @@ describe('HasWardenPrimaryKey Trait', function (): void {
 
             // Assert - The creating event handler should not override an already-set ID
             expect($idBeforeSave)->toBe(999);
-        })->group('edge-case');
+        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type')->group('edge-case');
 
         test('model initialization does not trigger creating event', function (): void {
             // Arrange

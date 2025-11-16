@@ -12,6 +12,7 @@ namespace Cline\Warden\Conductors;
 use Cline\Warden\Conductors\Concerns\FindsAndCreatesAbilities;
 use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Role;
+use Cline\Warden\Support\CharDetector;
 use Cline\Warden\Support\PrimaryKeyGenerator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -317,6 +318,13 @@ final class SyncsRolesAndAbilities
                 $result->push($role);
             } elseif (is_int($role)) {
                 // Look up role by ID
+                $roleModel = Models::role()::query()->find($role);
+
+                if ($roleModel) {
+                    $result->push($roleModel);
+                }
+            } elseif (is_string($role) && CharDetector::isUuidOrUlid($role)) {
+                // Look up role by ULID/UUID string ID
                 $roleModel = Models::role()::query()->find($role);
 
                 if ($roleModel) {

@@ -151,13 +151,8 @@ final class Helpers
             }
 
             if (is_string($model)) {
-                // Check if string is a ULID (26 chars, base32) or UUID (36 chars with dashes)
-                if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $model)) {
-                    // UUID format - treat as ID
-                    return 'integers';
-                }
-                if (strlen($model) === 26 && ctype_alnum($model)) {
-                    // ULID format (26 alphanumeric chars) - treat as ID
+                // Check if string is a ULID or UUID - treat as ID
+                if (CharDetector::isUuidOrUlid($model)) {
                     return 'integers';
                 }
                 // Otherwise it's a name

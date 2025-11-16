@@ -665,7 +665,7 @@ test('does not set primary key when using auto-increment ID configuration', func
         ->and($records[0]['role_id'])->toBe($role->id)
         ->and($records[0]['actor_id'])->toBe($user->id)
         ->and($records[0]['actor_type'])->toBe($user->getMorphClass());
-})->group('edge-case');
+})->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type')->group('edge-case');
 test('generates unique ULID for each assigned role record', function (): void {
     // Arrange
     $role = Role::query()->create(['name' => 'moderator']);

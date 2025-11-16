@@ -15,6 +15,7 @@ use Cline\Warden\Database\Ability;
 use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Queries\Abilities;
 use Cline\Warden\Database\Role;
+use Cline\Warden\Support\CharDetector;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
@@ -189,6 +190,11 @@ abstract class AbstractClipboard implements ClipboardInterface
 
         return count(array_filter($rolesArray, function (mixed $role) use ($lookups): bool {
             if (is_string($role)) {
+                // Check if string is a ULID or UUID - treat as ID
+                if (CharDetector::isUuidOrUlid($role)) {
+                    return $lookups['ids']->has($role);
+                }
+                // Otherwise it's a role name
                 return $lookups['names']->has($role);
             }
 

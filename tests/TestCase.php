@@ -46,9 +46,11 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         Models::setUsersModel(User::class);
+
+        $keyName = (new User())->getKeyName();
         Models::morphKeyMap([
-            User::class => 'id',
-            Account::class => 'id',
+            User::class => $keyName,
+            Account::class => $keyName,
         ]);
 
         static::registerClipboard();

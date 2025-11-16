@@ -18,12 +18,12 @@ beforeEach(function (): void {
     Models::reset();
     Models::setUsersModel(User::class);
 
-    // Use configured primary key type for all models
-    $keyType = config('warden.primary_key_type', 'id');
+    // Use actual key column name for all models
+    $keyName = (new User())->getKeyName();
     Models::morphKeyMap([
-        User::class => $keyType,
-        Organization::class => $keyType,
-        Account::class => $keyType,
+        User::class => $keyName,
+        Organization::class => $keyName,
+        Account::class => $keyName,
     ]);
 });
 
@@ -178,9 +178,8 @@ describe('MorphKeyIntegration', function (): void {
             ]);
 
             // Assert
-            $expectedKeyName = config('warden.primary_key_type', 'id');
             expect($ability->subject_type)->toEqual($org->getMorphClass());
-            expect(Models::getModelKey($org))->toBe($expectedKeyName);
+            expect(Models::getModelKey($org))->toBe('id'); // Column name is always 'id' regardless of type
         });
 
         test('uses correct key for subject id when creating model specific abilities', function (): void {
@@ -198,10 +197,9 @@ describe('MorphKeyIntegration', function (): void {
                 ->where('subject_type', $org->getMorphClass())
                 ->first();
 
-            $expectedKeyName = config('warden.primary_key_type', 'id');
             expect($ability)->toBeInstanceOf(Ability::class);
             $keyName = Models::getModelKey($org);
-            expect($keyName)->toBe($expectedKeyName);
+            expect($keyName)->toBe('id'); // Column name is always 'id' regardless of type
             expect($org->getAttribute($keyName))->toEqual($org->getKey());
         });
 
@@ -291,10 +289,10 @@ describe('MorphKeyIntegration', function (): void {
 
             expect($userAssignments)->toHaveCount(2);
             expect($orgAssignments)->toHaveCount(2);
-            expect($userAssignments->pluck('actor_id')->toArray())->toContain($user1->id);
-            expect($userAssignments->pluck('actor_id')->toArray())->toContain($user2->id);
-            expect($orgAssignments->pluck('actor_id')->toArray())->toContain($org1->getKey());
-            expect($orgAssignments->pluck('actor_id')->toArray())->toContain($org2->getKey());
+            expect($userAssignments->pluck('actor_id')->map(fn ($id) => (string) $id)->toArray())->toContain((string) $user1->id);
+            expect($userAssignments->pluck('actor_id')->map(fn ($id) => (string) $id)->toArray())->toContain((string) $user2->id);
+            expect($orgAssignments->pluck('actor_id')->map(fn ($id) => (string) $id)->toArray())->toContain((string) $org1->getKey());
+            expect($orgAssignments->pluck('actor_id')->map(fn ($id) => (string) $id)->toArray())->toContain((string) $org2->getKey());
         });
     });
 });

@@ -30,12 +30,6 @@ final class Organization extends Model
     protected $guarded = [];
 
     #[Override()]
-    public function getKeyName()
-    {
-        return config('warden.primary_key_type', 'id');
-    }
-
-    #[Override()]
     protected static function boot(): void
     {
         parent::boot();
@@ -51,5 +45,17 @@ final class Organization extends Model
                 };
             }
         });
+    }
+
+    #[Override()]
+    public function getIncrementing()
+    {
+        return config('warden.primary_key_type', 'id') === 'id';
+    }
+
+    #[Override()]
+    public function getKeyType()
+    {
+        return config('warden.primary_key_type', 'id') === 'id' ? 'int' : 'string';
     }
 }

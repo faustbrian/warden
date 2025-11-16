@@ -59,8 +59,8 @@ return new class() extends Migration
                 $keyType = config('warden.primary_key_type', 'id');
 
                 match ($keyType) {
-                    'ulid' => $table->ulid('ulid')->primary(),
-                    'uuid' => $table->uuid('uuid')->primary(),
+                    'ulid' => $table->ulid('id')->primary(),
+                    'uuid' => $table->uuid('id')->primary(),
                     default => $table->id(),
                 };
 
