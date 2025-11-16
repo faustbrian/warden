@@ -28,7 +28,7 @@ describe('Primary Key Type Configuration', function (): void {
             expect($role->getIncrementing())->toBeTrue()
                 ->and($role->getKeyType())->toBe('int')
                 ->and($role->id)->toBeInt();
-        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type');
+        })->skip(fn (): bool => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type');
 
         test('Ability uses auto-incrementing ID when configured', function (): void {
             // Act
@@ -38,7 +38,7 @@ describe('Primary Key Type Configuration', function (): void {
             expect($ability->getIncrementing())->toBeTrue()
                 ->and($ability->getKeyType())->toBe('int')
                 ->and($ability->id)->toBeInt();
-        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type');
+        })->skip(fn (): bool => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type');
     });
 
     describe('trait configuration behavior', function (): void {
@@ -101,6 +101,6 @@ describe('Primary Key Type Configuration', function (): void {
 
             // Assert - should default to ID behavior
             expect($role->id)->toBeInt();
-        })->skip(fn () => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type');
+        })->skip(fn (): bool => config('warden.primary_key_type') !== 'id', 'Test requires ID primary key type');
     });
 });

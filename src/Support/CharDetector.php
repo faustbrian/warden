@@ -9,6 +9,10 @@
 
 namespace Cline\Warden\Support;
 
+use function ctype_alnum;
+use function mb_strlen;
+use function preg_match;
+
 /**
  * Detects identifier formats for primary keys and IDs.
  *
@@ -29,7 +33,7 @@ final class CharDetector
      */
     public static function isUlid(string $value): bool
     {
-        return strlen($value) === 26 && ctype_alnum($value);
+        return mb_strlen($value) === 26 && ctype_alnum($value);
     }
 
     /**
@@ -37,6 +41,10 @@ final class CharDetector
      */
     public static function isUuidOrUlid(string $value): bool
     {
-        return self::isUuid($value) || self::isUlid($value);
+        if (self::isUuid($value)) {
+            return true;
+        }
+
+        return self::isUlid($value);
     }
 }

@@ -264,8 +264,8 @@ describe('Bouncer Simple API', function (): void {
             $enjoyLifeId = Ability::query()->where('name', 'enjoy-life')->first()->id;
 
             // Act & Assert
-            expect($warden->authorize('enjoy-life')->message())->toEqual("Bouncer granted permission via ability #{$enjoyLifeId}");
-            expect($warden->authorize('have-fun')->message())->toEqual("Bouncer granted permission via ability #{$haveFunId}");
+            expect($warden->authorize('enjoy-life')->message())->toEqual('Bouncer granted permission via ability #'.$enjoyLifeId);
+            expect($warden->authorize('have-fun')->message())->toEqual('Bouncer granted permission via ability #'.$haveFunId);
         })->with('bouncerProvider');
 
         test('deletes pivot table records when role is deleted', function (): void {

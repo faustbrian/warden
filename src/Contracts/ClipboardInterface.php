@@ -47,9 +47,9 @@ interface ClipboardInterface
      * information. Useful when you need to track which specific ability record
      * granted access, for example in audit logs.
      *
-     * @param  Model             $authority The authority to check permissions for
-     * @param  string            $ability   The ability name to check
-     * @param  null|Model|string $model     The specific model instance or class name to check against
+     * @param  Model                $authority The authority to check permissions for
+     * @param  string               $ability   The ability name to check
+     * @param  null|Model|string    $model     The specific model instance or class name to check against
      * @return null|bool|int|string The ability ID if authorized, false if not authorized, null if ability doesn't exist
      */
     public function checkGetId(Model $authority, string $ability, Model|string|null $model = null): null|bool|int|string;

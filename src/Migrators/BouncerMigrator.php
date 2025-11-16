@@ -23,7 +23,6 @@ use function assert;
 use function class_uses_recursive;
 use function config;
 use function in_array;
-use function is_int;
 use function is_string;
 use function json_decode;
 use function sprintf;

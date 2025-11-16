@@ -25,6 +25,7 @@ use Override;
 use Tests\Fixtures\Models\Account;
 use Tests\Fixtures\Models\User;
 
+use function env;
 use function Orchestra\Testbench\artisan;
 use function Orchestra\Testbench\package_path;
 
@@ -47,7 +48,7 @@ abstract class TestCase extends BaseTestCase
 
         Models::setUsersModel(User::class);
 
-        $keyName = (new User())->getKeyName();
+        $keyName = new User()->getKeyName();
         Models::morphKeyMap([
             User::class => $keyName,
             Account::class => $keyName,

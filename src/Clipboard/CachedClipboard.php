@@ -286,7 +286,7 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
      *
      * @param  BaseCollection<int, string> $abilityMap Map of ability IDs to their identifiers
      * @param  BaseCollection<int, string> $applicable Collection of applicable ability identifiers
-     * @return int|string|null             The matched ability ID, or null if no match
+     * @return null|int|string             The matched ability ID, or null if no match
      */
     private function getMatchedAbilityId(BaseCollection $abilityMap, BaseCollection $applicable): int|string|null
     {

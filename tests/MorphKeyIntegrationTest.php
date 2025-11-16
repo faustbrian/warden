@@ -19,7 +19,7 @@ beforeEach(function (): void {
     Models::setUsersModel(User::class);
 
     // Use actual key column name for all models
-    $keyName = (new User())->getKeyName();
+    $keyName = new User()->getKeyName();
     Models::morphKeyMap([
         User::class => $keyName,
         Organization::class => $keyName,
@@ -289,10 +289,10 @@ describe('MorphKeyIntegration', function (): void {
 
             expect($userAssignments)->toHaveCount(2);
             expect($orgAssignments)->toHaveCount(2);
-            expect($userAssignments->pluck('actor_id')->map(fn ($id) => (string) $id)->toArray())->toContain((string) $user1->id);
-            expect($userAssignments->pluck('actor_id')->map(fn ($id) => (string) $id)->toArray())->toContain((string) $user2->id);
-            expect($orgAssignments->pluck('actor_id')->map(fn ($id) => (string) $id)->toArray())->toContain((string) $org1->getKey());
-            expect($orgAssignments->pluck('actor_id')->map(fn ($id) => (string) $id)->toArray())->toContain((string) $org2->getKey());
+            expect($userAssignments->pluck('actor_id')->map(fn ($id): string => (string) $id)->toArray())->toContain((string) $user1->id);
+            expect($userAssignments->pluck('actor_id')->map(fn ($id): string => (string) $id)->toArray())->toContain((string) $user2->id);
+            expect($orgAssignments->pluck('actor_id')->map(fn ($id): string => (string) $id)->toArray())->toContain((string) $org1->getKey());
+            expect($orgAssignments->pluck('actor_id')->map(fn ($id): string => (string) $id)->toArray())->toContain((string) $org2->getKey());
         });
     });
 });

@@ -155,6 +155,7 @@ final class Helpers
                 if (CharDetector::isUuidOrUlid($model)) {
                     return 'integers';
                 }
+
                 // Otherwise it's a name
                 return 'strings';
             }

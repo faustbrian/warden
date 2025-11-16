@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 use function assert;
-use function is_int;
 
 /**
  * Real-time clipboard implementation that queries the database directly.

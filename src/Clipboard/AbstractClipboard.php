@@ -194,6 +194,7 @@ abstract class AbstractClipboard implements ClipboardInterface
                 if (CharDetector::isUuidOrUlid($role)) {
                     return $lookups['ids']->has($role);
                 }
+
                 // Otherwise it's a role name
                 return $lookups['names']->has($role);
             }
