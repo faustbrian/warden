@@ -26,6 +26,6 @@ final class SpatieUser extends Model
     use Authorizable;
     use HasRolesAndAbilities;
 
-    protected $table = 'legacy_users';
+    protected $table = 'spatie_users';
     protected $guarded = [];
 }

@@ -28,6 +28,6 @@ final class SoftDeletesSpatieUser extends Model
     use HasRolesAndAbilities;
     use SoftDeletes;
 
-    protected $table = 'legacy_users';
+    protected $table = 'spatie_users';
     protected $guarded = [];
 }

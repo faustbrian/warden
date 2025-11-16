@@ -38,9 +38,21 @@ return new class() extends Migration
             });
         }
 
-        // Create legacy_users table with auto-increment IDs for migrator tests
-        if (!Schema::hasTable('legacy_users')) {
-            Schema::create('legacy_users', function ($table): void {
+        // Create spatie_users table with auto-increment IDs for Spatie migration tests
+        if (!Schema::hasTable('spatie_users')) {
+            Schema::create('spatie_users', function ($table): void {
+                $table->increments('id');
+                $table->string('name')->nullable();
+                $table->integer('age')->nullable();
+                $table->integer('account_id')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+
+        // Create bouncer_users table with auto-increment IDs for Bouncer migration tests
+        if (!Schema::hasTable('bouncer_users')) {
+            Schema::create('bouncer_users', function ($table): void {
                 $table->increments('id');
                 $table->string('name')->nullable();
                 $table->integer('age')->nullable();

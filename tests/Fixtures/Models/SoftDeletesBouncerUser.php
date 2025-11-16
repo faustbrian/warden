@@ -28,6 +28,6 @@ final class SoftDeletesBouncerUser extends Model
     use HasRolesAndAbilities;
     use SoftDeletes;
 
-    protected $table = 'legacy_users';
+    protected $table = 'bouncer_users';
     protected $guarded = [];
 }
