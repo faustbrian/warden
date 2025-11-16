@@ -19,7 +19,7 @@ return new class() extends Migration
      */
     public function up(): void
     {
-        // Create shared tables if they don't exist (shared with Bouncer tests)
+        // Create shared users table with ULID/UUID support for Warden tests
         if (!Schema::hasTable('users')) {
             Schema::create('users', function ($table): void {
                 $keyType = config('warden.primary_key_type', 'id');
@@ -30,6 +30,18 @@ return new class() extends Migration
                     default => $table->increments('id'),
                 };
 
+                $table->string('name')->nullable();
+                $table->integer('age')->nullable();
+                $table->integer('account_id')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+
+        // Create legacy_users table with auto-increment IDs for migrator tests
+        if (!Schema::hasTable('legacy_users')) {
+            Schema::create('legacy_users', function ($table): void {
+                $table->increments('id');
                 $table->string('name')->nullable();
                 $table->integer('age')->nullable();
                 $table->integer('account_id')->nullable();

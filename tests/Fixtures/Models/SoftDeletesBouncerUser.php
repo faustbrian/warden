@@ -13,18 +13,20 @@ use Cline\Warden\Database\Concerns\Authorizable;
 use Cline\Warden\Database\HasRolesAndAbilities;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Legacy user model for Spatie migration tests.
- * Always uses bigint ID to match Spatie's legacy table structure.
- * 
+ * User model with soft deletes for Bouncer migration tests.
+ * Always uses bigint ID to match Bouncer's legacy table structure.
+ *
  * @author Brian Faust <brian@cline.sh>
  */
-final class SpatieUser extends Model
+final class SoftDeletesBouncerUser extends Model
 {
     use HasFactory;
     use Authorizable;
     use HasRolesAndAbilities;
+    use SoftDeletes;
 
     protected $table = 'legacy_users';
     protected $guarded = [];

@@ -12,6 +12,7 @@ use Cline\Warden\Migrators\BouncerMigrator;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Tests\Fixtures\Models\SoftDeletesUser;
+use Tests\Fixtures\Models\SoftDeletesBouncerUser;
 use Tests\Fixtures\Models\BouncerUser;
 
 beforeEach(function (): void {
@@ -664,7 +665,7 @@ describe('BouncerMigrator', function (): void {
             $user->delete(); // Soft delete the user
 
             // Override config to use SoftDeletesUser class
-            Config::set('warden.migrators.bouncer.entity_type', SoftDeletesUser::class);
+            Config::set('warden.migrators.bouncer.entity_type', SoftDeletesBouncerUser::class);
 
             $adminRoleId = DB::table('bouncer_roles')->insertGetId([
                 'name' => 'admin',
@@ -676,14 +677,14 @@ describe('BouncerMigrator', function (): void {
 
             DB::table('bouncer_assigned_roles')->insert([
                 'role_id' => $adminRoleId,
-                'entity_type' => SoftDeletesUser::class,
+                'entity_type' => SoftDeletesBouncerUser::class,
                 'entity_id' => $user->id,
                 'restricted_to_id' => null,
                 'restricted_to_type' => null,
                 'scope' => null,
             ]);
 
-            $migrator = new BouncerMigrator(SoftDeletesUser::class);
+            $migrator = new BouncerMigrator(SoftDeletesBouncerUser::class);
 
             // Act
             $migrator->migrate();
@@ -703,7 +704,7 @@ describe('BouncerMigrator', function (): void {
         test('findUser uses keymap column not primary key preventing assignment to wrong user', function (): void {
             // Arrange - Configure keymap to use 'id' column
             Models::enforceMorphKeyMap([
-                User::class => 'id',
+                BouncerUser::class => 'id',
             ]);
 
             // Create users with specific IDs

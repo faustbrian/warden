@@ -13,6 +13,7 @@ use Cline\Warden\Migrators\SpatieMigrator;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Tests\Fixtures\Models\SpatieUser;
+use Tests\Fixtures\Models\BouncerUser;
 use Tests\Fixtures\Models\UserWithSoftDeletes;
 
 require_once __DIR__.'/../../Helpers.php';
@@ -151,7 +152,7 @@ describe('Bouncer migrator with guard_name', function (): void {
             ['name' => 'bouncer-admin', 'scope' => null, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        $migrator = new BouncerMigrator(User::class);
+        $migrator = new BouncerMigrator(BouncerUser::class);
         $migrator->migrate();
 
         $role = Models::role()->where('name', 'bouncer-admin')->first();
@@ -165,7 +166,7 @@ describe('Bouncer migrator with guard_name', function (): void {
             ['name' => 'rpc-admin', 'scope' => null, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        $migrator = new BouncerMigrator(User::class, 'migration', 'rpc');
+        $migrator = new BouncerMigrator(BouncerUser::class, 'migration', 'rpc');
         $migrator->migrate();
 
         $role = Models::role()->where('name', 'rpc-admin')->first();
@@ -187,7 +188,7 @@ describe('Bouncer migrator with guard_name', function (): void {
             ],
         ]);
 
-        $migrator = new BouncerMigrator(User::class, 'migration', 'rpc');
+        $migrator = new BouncerMigrator(BouncerUser::class, 'migration', 'rpc');
         $migrator->migrate();
 
         $ability = Models::ability()->where('name', 'rpc-call')->first();
@@ -197,23 +198,25 @@ describe('Bouncer migrator with guard_name', function (): void {
     });
 
     test('migrates role assignments with specified guard', function (): void {
+        $bouncerUser = BouncerUser::query()->create();
+
         DB::table('bouncer_roles')->insert([
             ['name' => 'api-user', 'scope' => null, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         DB::table('bouncer_assigned_roles')->insert([
             'role_id' => 1,
-            'entity_type' => User::class,
-            'entity_id' => $this->user->id,
+            'entity_type' => BouncerUser::class,
+            'entity_id' => $bouncerUser->id,
         ]);
 
-        $migrator = new BouncerMigrator(User::class, 'migration', 'api');
+        $migrator = new BouncerMigrator(BouncerUser::class, 'migration', 'api');
         $migrator->migrate();
 
         $role = Models::role()->where('name', 'api-user')->where('guard_name', 'api')->first();
 
         expect($role)->not->toBeNull();
-        expect($this->user->roles()->where('guard_name', 'api')->count())->toBe(1);
+        expect($bouncerUser->roles()->where('guard_name', 'api')->count())->toBe(1);
     });
 });
 
@@ -311,12 +314,12 @@ describe('Bouncer migrator edge cases', function (): void {
 
         DB::table('bouncer_permissions')->insert([
             'ability_id' => 1,
-            'entity_type' => User::class,
+            'entity_type' => BouncerUser::class,
             'entity_id' => 99_999, // Non-existent user
             'forbidden' => false,
         ]);
 
-        $migrator = new BouncerMigrator(User::class);
+        $migrator = new BouncerMigrator(BouncerUser::class);
         $migrator->migrate();
 
         // Ability should be created but not assigned
@@ -326,12 +329,12 @@ describe('Bouncer migrator edge cases', function (): void {
     test('skips user permissions for non-existent abilities', function (): void {
         insertWithoutForeignKeyChecks('bouncer_permissions', [
             'ability_id' => 99_999, // Non-existent ability
-            'entity_type' => User::class,
+            'entity_type' => BouncerUser::class,
             'entity_id' => $this->user->id,
             'forbidden' => false,
         ]);
 
-        $migrator = new BouncerMigrator(User::class);
+        $migrator = new BouncerMigrator(BouncerUser::class);
         $migrator->migrate();
 
         // Should complete without error
@@ -353,7 +356,7 @@ describe('Bouncer migrator edge cases', function (): void {
             'forbidden' => false,
         ]);
 
-        $migrator = new BouncerMigrator(User::class);
+        $migrator = new BouncerMigrator(BouncerUser::class);
         $migrator->migrate();
 
         $role = Models::role()->where('name', 'admin')->first();
@@ -380,7 +383,7 @@ describe('Bouncer migrator edge cases', function (): void {
             'forbidden' => false,
         ]);
 
-        $migrator = new BouncerMigrator(User::class);
+        $migrator = new BouncerMigrator(BouncerUser::class);
         $migrator->migrate();
 
         // Ability should be created but not assigned to any role
@@ -413,7 +416,7 @@ describe('Bouncer migrator edge cases', function (): void {
         ]);
 
         // Use different guard so role won't be found
-        $migrator = new BouncerMigrator(User::class, 'migration', 'api');
+        $migrator = new BouncerMigrator(BouncerUser::class, 'migration', 'api');
         $migrator->migrate();
 
         // Should skip the permission assignment
@@ -452,7 +455,7 @@ describe('Bouncer migrator edge cases', function (): void {
             'forbidden' => false,
         ]);
 
-        $migrator = new BouncerMigrator(User::class);
+        $migrator = new BouncerMigrator(BouncerUser::class);
         $migrator->migrate();
 
         // Role should be created but ability not assigned
@@ -481,7 +484,7 @@ describe('Bouncer migrator edge cases', function (): void {
             'forbidden' => false,
         ]);
 
-        $migrator = new BouncerMigrator(User::class);
+        $migrator = new BouncerMigrator(BouncerUser::class);
         $migrator->migrate();
 
         // Ability should be created but not assigned
@@ -544,7 +547,7 @@ describe('Multi-guard migration scenarios', function (): void {
         $spatieMigrator = new SpatieMigrator(SpatieUser::class);
         $spatieMigrator->migrate();
 
-        $bouncerMigrator = new BouncerMigrator(User::class, 'migration', 'api');
+        $bouncerMigrator = new BouncerMigrator(BouncerUser::class, 'migration', 'api');
         $bouncerMigrator->migrate();
 
         $webEditor = Models::role()->where('name', 'editor')->where('guard_name', 'web')->first();

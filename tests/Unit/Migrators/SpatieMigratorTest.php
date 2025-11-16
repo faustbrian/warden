@@ -12,6 +12,7 @@ use Cline\Warden\Migrators\SpatieMigrator;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Tests\Fixtures\Models\SoftDeletesUser;
+use Tests\Fixtures\Models\SoftDeletesSpatieUser;
 use Tests\Fixtures\Models\SpatieUser;
 
 require_once __DIR__.'/../../Helpers.php';
@@ -480,7 +481,7 @@ describe('SpatieMigrator', function (): void {
                 'model_id' => $user->id,
             ]);
 
-            $migrator = new SpatieMigrator(SoftDeletesUser::class);
+            $migrator = new SpatieMigrator(SoftDeletesSpatieUser::class);
 
             // Act
             $migrator->migrate();

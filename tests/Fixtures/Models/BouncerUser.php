@@ -26,6 +26,6 @@ final class BouncerUser extends Model
     use Authorizable;
     use HasRolesAndAbilities;
 
-    protected $table = 'users';
+    protected $table = 'legacy_users';
     protected $guarded = [];
 }
