@@ -1,0 +1,318 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+use Cline\Warden\Console\MigrateFromBouncerCommand;
+use Illuminate\Console\Application as Artisan;
+use Illuminate\Contracts\Config\Repository;
+use Tests\Fixtures\Models\User;
+
+describe('MigrateFromBouncerCommand', function (): void {
+    beforeEach(function (): void {
+        Artisan::starting(
+            fn ($artisan) => $artisan->resolveCommands(MigrateFromBouncerCommand::class),
+        );
+    });
+
+    describe('Sad Paths', function (): void {
+        test('fails when default guard is null', function (): void {
+            // Arrange
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturnNull();
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine default authentication guard.')
+                ->assertExitCode(1);
+        });
+
+        test('fails when default guard is not a string', function (): void {
+            // Arrange
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturn(['invalid']);
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine default authentication guard.')
+                ->assertExitCode(1);
+        });
+
+        test('fails when provider is null', function (): void {
+            // Arrange
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturn('web');
+            $config->shouldReceive('get')
+                ->with('auth.guards.web.provider')
+                ->once()
+                ->andReturnNull();
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine authentication provider.')
+                ->assertExitCode(1);
+        });
+
+        test('fails when provider is not a string', function (): void {
+            // Arrange
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturn('web');
+            $config->shouldReceive('get')
+                ->with('auth.guards.web.provider')
+                ->once()
+                ->andReturn(123);
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine authentication provider.')
+                ->assertExitCode(1);
+        });
+
+        test('fails when user model is null', function (): void {
+            // Arrange
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturn('web');
+            $config->shouldReceive('get')
+                ->with('auth.guards.web.provider')
+                ->once()
+                ->andReturn('users');
+            $config->shouldReceive('get')
+                ->with('auth.providers.users.model')
+                ->once()
+                ->andReturnNull();
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine user model.')
+                ->assertExitCode(1);
+        });
+
+        test('fails when user model is not a string', function (): void {
+            // Arrange
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturn('web');
+            $config->shouldReceive('get')
+                ->with('auth.guards.web.provider')
+                ->once()
+                ->andReturn('users');
+            $config->shouldReceive('get')
+                ->with('auth.providers.users.model')
+                ->once()
+                ->andReturn(['App\Models\User']);
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine user model.')
+                ->assertExitCode(1);
+        });
+    });
+
+    describe('Happy Paths', function (): void {
+        test('successfully migrates when all configuration is valid', function (): void {
+            // Arrange - Set up real config
+            config([
+                'auth.defaults.guard' => 'web',
+                'auth.guards.web.provider' => 'users',
+                'auth.providers.users.model' => User::class,
+                'warden.migrators.bouncer.tables' => [
+                    'abilities' => 'bouncer_abilities',
+                    'roles' => 'bouncer_roles',
+                    'assigned_roles' => 'bouncer_assigned_roles',
+                    'permissions' => 'bouncer_permissions',
+                ],
+            ]);
+
+            // Act & Assert - Migrator runs against empty database (won't migrate anything)
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Migration completed successfully!')
+                ->assertExitCode(0);
+        })->group('happy-path');
+
+        test('successfully migrates with custom log channel', function (): void {
+            // Arrange - Set up real config
+            config([
+                'auth.defaults.guard' => 'web',
+                'auth.guards.web.provider' => 'users',
+                'auth.providers.users.model' => User::class,
+                'warden.migrators.bouncer.tables' => [
+                    'abilities' => 'bouncer_abilities',
+                    'roles' => 'bouncer_roles',
+                    'assigned_roles' => 'bouncer_assigned_roles',
+                    'permissions' => 'bouncer_permissions',
+                ],
+            ]);
+
+            // Act & Assert - Migrator runs against empty database (won't migrate anything)
+            $this
+                ->artisan('warden:bouncer', ['--log-channel' => 'custom'])
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Migration completed successfully!')
+                ->assertExitCode(0);
+        })->group('happy-path');
+
+        test('successfully migrates with custom guard name', function (): void {
+            // Arrange - Set up real config
+            config([
+                'auth.defaults.guard' => 'web',
+                'auth.guards.web.provider' => 'users',
+                'auth.providers.users.model' => User::class,
+                'warden.migrators.bouncer.tables' => [
+                    'abilities' => 'bouncer_abilities',
+                    'roles' => 'bouncer_roles',
+                    'assigned_roles' => 'bouncer_assigned_roles',
+                    'permissions' => 'bouncer_permissions',
+                ],
+            ]);
+
+            // Act & Assert - Migrator runs against empty database (won't migrate anything)
+            $this
+                ->artisan('warden:bouncer', ['--guard' => 'api'])
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Migration completed successfully!')
+                ->assertExitCode(0);
+        })->group('happy-path');
+    });
+
+    describe('Edge Cases', function (): void {
+        test('validates configuration in correct order', function (): void {
+            // Arrange - Test that guard is validated before provider
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturnNull();
+            // Should not reach provider/model calls since guard validation fails first
+            $config->shouldNotReceive('get')->with(Mockery::pattern('/auth\.guards\./'));
+            $config->shouldNotReceive('get')->with(Mockery::pattern('/auth\.providers\./'));
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine default authentication guard.')
+                ->assertExitCode(1);
+        });
+
+        test('validates provider before user model', function (): void {
+            // Arrange - Test that provider is validated before user model
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturn('web');
+            $config->shouldReceive('get')
+                ->with('auth.guards.web.provider')
+                ->once()
+                ->andReturnNull();
+            // Should not reach user model call since provider validation fails
+            $config->shouldNotReceive('get')->with(Mockery::pattern('/auth\.providers\./'));
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine authentication provider.')
+                ->assertExitCode(1);
+        });
+
+        test('handles different guard names', function (): void {
+            // Arrange
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturn('api');
+            $config->shouldReceive('get')
+                ->with('auth.guards.api.provider')
+                ->once()
+                ->andReturnNull();
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine authentication provider.')
+                ->assertExitCode(1);
+        });
+
+        test('handles different provider names', function (): void {
+            // Arrange
+            $config = Mockery::mock(Repository::class);
+            $config->shouldReceive('get')
+                ->with('auth.defaults.guard')
+                ->once()
+                ->andReturn('admin');
+            $config->shouldReceive('get')
+                ->with('auth.guards.admin.provider')
+                ->once()
+                ->andReturn('admin_users');
+            $config->shouldReceive('get')
+                ->with('auth.providers.admin_users.model')
+                ->once()
+                ->andReturnNull();
+
+            $this->app->instance(Repository::class, $config);
+
+            // Act & Assert
+            $this
+                ->artisan('warden:bouncer')
+                ->expectsOutput('Starting migration from Bouncer to Warden...')
+                ->expectsOutput('Unable to determine user model.')
+                ->assertExitCode(1);
+        });
+    });
+});
