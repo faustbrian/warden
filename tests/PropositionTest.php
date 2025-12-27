@@ -17,8 +17,8 @@ use Tests\Fixtures\Models\User;
 describe('Proposition-based Conditional Permissions', function (): void {
     describe('Happy Paths', function (): void {
         test('grants access when proposition evaluates to true', function (): void {
-            $user = User::query()->create([' 'name' => 'Alice']);
-            $post = Post::query()->create([' 'user_id' => 1, 'title' => 'Test Post']);
+            $user = User::query()->create(['name' => 'Alice']);
+            $post = Post::query()->create(['user_id' => $user->id, 'title' => 'Test Post']);
 
             // Create ability with proposition config
             $ability = Ability::query()->create([
@@ -39,9 +39,9 @@ describe('Proposition-based Conditional Permissions', function (): void {
         });
 
         test('denies access when proposition evaluates to false', function (): void {
-            $user = User::query()->create([' 'name' => 'Alice']);
-            $otherUser = User::query()->create([' 'name' => 'Bob']);
-            $post = Post::query()->create([' 'user_id' => 2, 'title' => "Bob's Post"]);
+            $user = User::query()->create(['name' => 'Alice']);
+            $otherUser = User::query()->create(['name' => 'Bob']);
+            $post = Post::query()->create(['user_id' => $otherUser->id, 'title' => "Bob's Post"]);
 
             // Create proposition: user owns the resource
             $proposition = [
@@ -65,8 +65,9 @@ describe('Proposition-based Conditional Permissions', function (): void {
         });
 
         test('works without proposition for backward compatibility', function (): void {
-            $user = User::query()->create([' 'name' => 'Alice']);
-            $post = Post::query()->create([' 'user_id' => 2, 'title' => 'Test Post']);
+            $user = User::query()->create(['name' => 'Alice']);
+            $otherUser = User::query()->create(['name' => 'Bob']);
+            $post = Post::query()->create(['user_id' => $otherUser->id, 'title' => 'Test Post']);
 
             // Create ability WITHOUT proposition
             $ability = Ability::query()->create([
@@ -83,9 +84,10 @@ describe('Proposition-based Conditional Permissions', function (): void {
         });
 
         test('PropositionBuilder resourceOwnedBy helper works', function (): void {
-            $user = User::query()->create([' 'name' => 'Alice']);
-            $ownPost = Post::query()->create([' 'user_id' => 1, 'title' => 'My Post']);
-            $otherPost = Post::query()->create([' 'user_id' => 2, 'title' => 'Other Post']);
+            $user = User::query()->create(['name' => 'Alice']);
+            $otherUser = User::query()->create(['name' => 'Bob']);
+            $ownPost = Post::query()->create(['user_id' => $user->id, 'title' => 'My Post']);
+            $otherPost = Post::query()->create(['user_id' => $otherUser->id, 'title' => 'Other Post']);
 
             $proposition = [
                 'method' => 'resourceOwnedBy',
@@ -185,8 +187,9 @@ describe('Proposition-based Conditional Permissions', function (): void {
         });
 
         test('complex proposition with multiple conditions', function (): void {
-            $user = User::query()->create([' 'name' => 'Alice']);
-            $post = Post::query()->create([' 'user_id' => 1, 'title' => 'Draft Post']);
+            $user = User::query()->create(['name' => 'Alice']);
+            $otherUser = User::query()->create(['name' => 'Bob']);
+            $post = Post::query()->create(['user_id' => $user->id, 'title' => 'Draft Post']);
 
             $builder = new PropositionBuilder();
 
@@ -209,7 +212,7 @@ describe('Proposition-based Conditional Permissions', function (): void {
             expect($user->can('view', $post))->toBeTrue();
 
             // Change post ownership but make it published
-            $post->update(['user_id' => 2, 'title' => 'Published Post']);
+            $post->update(['user_id' => $otherUser->id, 'title' => 'Published Post']);
             expect($user->can('view', $post))->toBeTrue();
 
             // Neither condition met
@@ -247,7 +250,7 @@ describe('Proposition-based Conditional Permissions', function (): void {
 
     describe('Sad Paths', function (): void {
         test('null proposition behaves like traditional permission', function (): void {
-            $user = User::query()->create([' 'name' => 'Alice']);
+            $user = User::query()->create(['name' => 'Alice']);
 
             $ability = Ability::query()->create([
                 'name' => 'test',
@@ -261,8 +264,9 @@ describe('Proposition-based Conditional Permissions', function (): void {
         });
 
         test('proposition denial takes precedence over assignment', function (): void {
-            $user = User::query()->create([' 'name' => 'Alice']);
-            $post = Post::query()->create([' 'user_id' => 2, 'title' => 'Test']);
+            $user = User::query()->create(['name' => 'Alice']);
+            $otherUser = User::query()->create(['name' => 'Bob']);
+            $post = Post::query()->create(['user_id' => $otherUser->id, 'title' => 'Test']);
 
             $proposition = [
                 'method' => 'resourceOwnedBy',
@@ -286,7 +290,7 @@ describe('Proposition-based Conditional Permissions', function (): void {
 
     describe('Edge Cases', function (): void {
         test('proposition with null resource', function (): void {
-            $user = User::query()->create([' 'name' => 'Alice']);
+            $user = User::query()->create(['name' => 'Alice']);
 
             // This proposition expects a resource
             $proposition = [
