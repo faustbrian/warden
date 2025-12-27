@@ -10,6 +10,7 @@
 namespace Cline\Warden\Clipboard;
 
 use BackedEnum;
+use Cline\Ruler\Core\Context;
 use Cline\Warden\Contracts\CachedClipboardInterface;
 use Cline\Warden\Database\Ability;
 use Cline\Warden\Database\Models;
@@ -27,6 +28,7 @@ use function is_int;
 use function is_string;
 use function mb_strtolower;
 use function method_exists;
+use function now;
 use function sprintf;
 
 /**
@@ -108,6 +110,10 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
      * precedence - if any forbidden ability matches, returns false immediately.
      * Otherwise returns the ability ID if allowed, or null if not found.
      *
+     * If the matched ability has a proposition attached, evaluates it with runtime
+     * context before granting permission. The proposition must evaluate to true for
+     * access to be granted.
+     *
      * @param Model             $authority The authority model to check
      * @param string            $ability   The ability name to verify
      * @param null|Model|string $model     Optional model to scope the ability check
@@ -133,13 +139,32 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
             return false;
         }
 
-        return $this->findMatchingAbility(
+        $matchedId = $this->findMatchingAbility(
             /** @phpstan-ignore-next-line argument.type (Laravel Collection invariant generics) */
-            $this->getAbilities($authority),
+            $abilities = $this->getAbilities($authority),
             $applicable,
             $model,
             $authority,
         );
+
+        if ($matchedId === null) {
+            return null;
+        }
+
+        // Get the matched ability model to check for proposition
+        /** @var null|Ability $abilityModel */
+        $abilityModel = $abilities->firstWhere(Models::ability()->getKeyName(), $matchedId);
+
+        // If ability has a proposition, evaluate it with runtime context
+        if ($abilityModel instanceof Ability && $abilityModel->proposition !== null) {
+            $context = $this->buildPropositionContext($authority, $model);
+
+            if (!$abilityModel->proposition->evaluate($context)) {
+                return null;
+            }
+        }
+
+        return $matchedId;
     }
 
     /**
@@ -255,6 +280,27 @@ final class CachedClipboard extends AbstractClipboard implements CachedClipboard
         $this->cache->forget($this->getCacheKey($authority, 'roles'));
 
         return $this;
+    }
+
+    /**
+     * Build the proposition evaluation context with runtime data.
+     *
+     * Creates a Context instance populated with the authority, model, and other
+     * runtime data needed for evaluating conditional propositions. The context
+     * provides the facts that propositions can reference when making decisions.
+     *
+     * @param Model             $authority The authority model being checked
+     * @param null|Model|string $model     Optional model instance being acted upon
+     *
+     * @return Context The populated context for proposition evaluation
+     */
+    private function buildPropositionContext(Model $authority, Model|string|null $model): Context
+    {
+        return new Context([
+            'authority' => $authority,
+            'resource' => $model,
+            'now' => now(),
+        ]);
     }
 
     /**

@@ -10,6 +10,7 @@
 namespace Cline\Warden\Clipboard;
 
 use BackedEnum;
+use Cline\Ruler\Core\Context;
 use Cline\Warden\Database\Ability;
 use Cline\Warden\Database\Queries\Abilities;
 use Cline\Warden\Support\Helpers;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 use function assert;
 use function is_int;
 use function is_string;
+use function now;
 
 /**
  * Real-time clipboard implementation that queries the database directly.
@@ -42,6 +44,9 @@ final class Clipboard extends AbstractClipboard
      * first and take precedence - if any forbidden match exists, returns false immediately.
      * Otherwise returns the allowing ability ID if found, or null if not authorized.
      *
+     * If the ability has a proposition attached, evaluates it with runtime context before
+     * granting permission. The proposition must evaluate to true for access to be granted.
+     *
      * @param Model             $authority The authority model to check permissions for
      * @param BackedEnum|string $ability   The ability name to verify
      * @param null|Model|string $model     Optional model to scope the ability check
@@ -60,6 +65,15 @@ final class Clipboard extends AbstractClipboard
             return null;
         }
 
+        // If ability has a proposition, evaluate it with runtime context
+        if ($abilityModel->proposition !== null) {
+            $context = $this->buildPropositionContext($authority, $model);
+
+            if (!$abilityModel->proposition->evaluate($context)) {
+                return null;
+            }
+        }
+
         $key = $abilityModel->getKey();
 
         // The Ability model key can be int, string (ULID/UUID), or null
@@ -67,6 +81,27 @@ final class Clipboard extends AbstractClipboard
         assert(is_int($key) || is_string($key));
 
         return $key;
+    }
+
+    /**
+     * Build the proposition evaluation context with runtime data.
+     *
+     * Creates a Context instance populated with the authority, model, and other
+     * runtime data needed for evaluating conditional propositions. The context
+     * provides the facts that propositions can reference when making decisions.
+     *
+     * @param Model             $authority The authority model being checked
+     * @param null|Model|string $model     Optional model instance being acted upon
+     *
+     * @return Context The populated context for proposition evaluation
+     */
+    private function buildPropositionContext(Model $authority, Model|string|null $model): Context
+    {
+        return new Context([
+            'authority' => $authority,
+            'resource' => $model,
+            'now' => now(),
+        ]);
     }
 
     /**

@@ -43,6 +43,8 @@ php artisan migrate
 
 **Using multiple authentication guards?** See the [Multi-Guard Support](multi-guard-support.md) guide to learn how to maintain separate permission systems for web, API, and RPC guards.
 
+**Need conditional permissions?** See the [Conditional Permissions](conditional-permissions.md) guide to learn how to use propositions for complex authorization rules like resource ownership, time-based access, and approval limits.
+
 ## Using the Facade
 
 Whenever you use the `Warden` facade in your code, remember to add this line to your namespace imports at the top of the file:
