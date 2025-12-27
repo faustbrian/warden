@@ -7,12 +7,31 @@ on:
 
 jobs:
   tests:
-    name: Tests on ${{ matrix.php }} ${{ matrix.composer-flags }}
+    name: Tests (${{ matrix.db }}/${{ matrix.key-type }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         php: ['8.5']
-        composer-flags: ['']
+        db: ['sqlite', 'mysql', 'pgsql']
+        key-type: ['id', 'numeric', 'ulid', 'uuid']
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: warden_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: warden_test
+        ports:
+          - 5432:5432
+        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: https://github.com/actions/checkout@v6
       - uses: https://github.com/shivammathur/setup-php@v2
@@ -20,8 +39,61 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: pcov
           tools: composer:v2
-      - run: composer install --no-progress ${{ matrix.composer-flags }}
-      - run: vendor/bin/pest --coverage --min=90
+          extensions: pdo_mysql, pdo_pgsql, pdo_sqlite
+      - run: composer install --no-progress
+      - name: Run tests (id key type)
+        if: matrix.key-type == 'id'
+        env:
+          DB_CONNECTION: ${{ matrix.db }}
+          DB_HOST: ${{ matrix.db == 'mysql' && '127.0.0.1' || (matrix.db == 'pgsql' && '127.0.0.1' || '') }}
+          DB_PORT: ${{ matrix.db == 'mysql' && '3306' || (matrix.db == 'pgsql' && '5432' || '') }}
+          DB_DATABASE: ${{ matrix.db != 'sqlite' && 'warden_test' || '' }}
+          DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || (matrix.db == 'pgsql' && 'postgres' || '') }}
+          DB_PASSWORD: password
+          WARDEN_PRIMARY_KEY_TYPE: id
+        run: vendor/bin/pest
+      - name: Run tests (numeric morph types)
+        if: matrix.key-type == 'numeric'
+        env:
+          DB_CONNECTION: ${{ matrix.db }}
+          DB_HOST: ${{ matrix.db == 'mysql' && '127.0.0.1' || (matrix.db == 'pgsql' && '127.0.0.1' || '') }}
+          DB_PORT: ${{ matrix.db == 'mysql' && '3306' || (matrix.db == 'pgsql' && '5432' || '') }}
+          DB_DATABASE: ${{ matrix.db != 'sqlite' && 'warden_test' || '' }}
+          DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || (matrix.db == 'pgsql' && 'postgres' || '') }}
+          DB_PASSWORD: password
+          WARDEN_PRIMARY_KEY_TYPE: id
+          WARDEN_ACTOR_MORPH_TYPE: numeric
+          WARDEN_BOUNDARY_MORPH_TYPE: numeric
+          WARDEN_SUBJECT_MORPH_TYPE: numeric
+        run: vendor/bin/pest --configuration=phpunit.numeric.xml
+      - name: Run tests (ulid key type)
+        if: matrix.key-type == 'ulid'
+        env:
+          DB_CONNECTION: ${{ matrix.db }}
+          DB_HOST: ${{ matrix.db == 'mysql' && '127.0.0.1' || (matrix.db == 'pgsql' && '127.0.0.1' || '') }}
+          DB_PORT: ${{ matrix.db == 'mysql' && '3306' || (matrix.db == 'pgsql' && '5432' || '') }}
+          DB_DATABASE: ${{ matrix.db != 'sqlite' && 'warden_test' || '' }}
+          DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || (matrix.db == 'pgsql' && 'postgres' || '') }}
+          DB_PASSWORD: password
+          WARDEN_PRIMARY_KEY_TYPE: ulid
+          WARDEN_ACTOR_MORPH_TYPE: ulid
+          WARDEN_BOUNDARY_MORPH_TYPE: ulid
+          WARDEN_SUBJECT_MORPH_TYPE: ulid
+        run: vendor/bin/pest --configuration=phpunit.ulid.xml
+      - name: Run tests (uuid key type)
+        if: matrix.key-type == 'uuid'
+        env:
+          DB_CONNECTION: ${{ matrix.db }}
+          DB_HOST: ${{ matrix.db == 'mysql' && '127.0.0.1' || (matrix.db == 'pgsql' && '127.0.0.1' || '') }}
+          DB_PORT: ${{ matrix.db == 'mysql' && '3306' || (matrix.db == 'pgsql' && '5432' || '') }}
+          DB_DATABASE: ${{ matrix.db != 'sqlite' && 'warden_test' || '' }}
+          DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || (matrix.db == 'pgsql' && 'postgres' || '') }}
+          DB_PASSWORD: password
+          WARDEN_PRIMARY_KEY_TYPE: uuid
+          WARDEN_ACTOR_MORPH_TYPE: uuid
+          WARDEN_BOUNDARY_MORPH_TYPE: uuid
+          WARDEN_SUBJECT_MORPH_TYPE: uuid
+        run: vendor/bin/pest --configuration=phpunit.uuid.xml
 
   phpstan:
     name: PHPStan on ${{ matrix.php }} ${{ matrix.composer-flags }}
