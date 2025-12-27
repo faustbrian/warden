@@ -6,66 +6,83 @@ on:
   pull_request: ~
 
 jobs:
-  tests-sqlite:
-    name: Tests (sqlite/${{ matrix.key-type }})
+  tests-sqlite-id:
+    name: Tests (sqlite/id)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        php: ['8.5']
-        key-type: ['id', 'numeric', 'ulid', 'uuid']
     steps:
       - uses: https://github.com/actions/checkout@v6
       - uses: https://github.com/shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: '8.5'
           coverage: pcov
           tools: composer:v2
           extensions: pdo_sqlite
       - run: composer install --no-progress
-      - name: Run tests (id key type)
-        if: matrix.key-type == 'id'
+      - run: vendor/bin/pest
         env:
           DB_CONNECTION: sqlite
           WARDEN_PRIMARY_KEY_TYPE: id
-        run: vendor/bin/pest
-      - name: Run tests (numeric morph types)
-        if: matrix.key-type == 'numeric'
+
+  tests-sqlite-numeric:
+    name: Tests (sqlite/numeric)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_sqlite
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.numeric.xml
         env:
           DB_CONNECTION: sqlite
           WARDEN_PRIMARY_KEY_TYPE: id
           WARDEN_ACTOR_MORPH_TYPE: numeric
           WARDEN_BOUNDARY_MORPH_TYPE: numeric
           WARDEN_SUBJECT_MORPH_TYPE: numeric
-        run: vendor/bin/pest --configuration=phpunit.numeric.xml
-      - name: Run tests (ulid key type)
-        if: matrix.key-type == 'ulid'
+
+  tests-sqlite-ulid:
+    name: Tests (sqlite/ulid)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_sqlite
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.ulid.xml
         env:
           DB_CONNECTION: sqlite
           WARDEN_PRIMARY_KEY_TYPE: ulid
           WARDEN_ACTOR_MORPH_TYPE: ulid
           WARDEN_BOUNDARY_MORPH_TYPE: ulid
           WARDEN_SUBJECT_MORPH_TYPE: ulid
-        run: vendor/bin/pest --configuration=phpunit.ulid.xml
-      - name: Run tests (uuid key type)
-        if: matrix.key-type == 'uuid'
+
+  tests-sqlite-uuid:
+    name: Tests (sqlite/uuid)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_sqlite
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.uuid.xml
         env:
           DB_CONNECTION: sqlite
           WARDEN_PRIMARY_KEY_TYPE: uuid
           WARDEN_ACTOR_MORPH_TYPE: uuid
           WARDEN_BOUNDARY_MORPH_TYPE: uuid
           WARDEN_SUBJECT_MORPH_TYPE: uuid
-        run: vendor/bin/pest --configuration=phpunit.uuid.xml
 
-  tests-mysql:
-    name: Tests (mysql/${{ matrix.key-type }})
+  tests-mysql-id:
+    name: Tests (mysql/id)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        php: ['8.5']
-        key-type: ['id', 'numeric', 'ulid', 'uuid']
     services:
       mysql:
         image: mysql:8.0
@@ -79,12 +96,11 @@ jobs:
       - uses: https://github.com/actions/checkout@v6
       - uses: https://github.com/shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: '8.5'
           tools: composer:v2
           extensions: pdo_mysql
       - run: composer install --no-progress
-      - name: Run tests (id key type)
-        if: matrix.key-type == 'id'
+      - run: vendor/bin/pest
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
@@ -93,13 +109,32 @@ jobs:
           DB_USERNAME: root
           DB_PASSWORD: password
           WARDEN_PRIMARY_KEY_TYPE: id
-        run: vendor/bin/pest
-      - name: Run tests (numeric morph types)
-        if: matrix.key-type == 'numeric'
+
+  tests-mysql-numeric:
+    name: Tests (mysql/numeric)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: warden_test
+        ports:
+          - 3307:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_mysql
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.numeric.xml
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
-          DB_PORT: 3306
+          DB_PORT: 3307
           DB_DATABASE: warden_test
           DB_USERNAME: root
           DB_PASSWORD: password
@@ -107,13 +142,32 @@ jobs:
           WARDEN_ACTOR_MORPH_TYPE: numeric
           WARDEN_BOUNDARY_MORPH_TYPE: numeric
           WARDEN_SUBJECT_MORPH_TYPE: numeric
-        run: vendor/bin/pest --configuration=phpunit.numeric.xml
-      - name: Run tests (ulid key type)
-        if: matrix.key-type == 'ulid'
+
+  tests-mysql-ulid:
+    name: Tests (mysql/ulid)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: warden_test
+        ports:
+          - 3308:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_mysql
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.ulid.xml
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
-          DB_PORT: 3306
+          DB_PORT: 3308
           DB_DATABASE: warden_test
           DB_USERNAME: root
           DB_PASSWORD: password
@@ -121,13 +175,32 @@ jobs:
           WARDEN_ACTOR_MORPH_TYPE: ulid
           WARDEN_BOUNDARY_MORPH_TYPE: ulid
           WARDEN_SUBJECT_MORPH_TYPE: ulid
-        run: vendor/bin/pest --configuration=phpunit.ulid.xml
-      - name: Run tests (uuid key type)
-        if: matrix.key-type == 'uuid'
+
+  tests-mysql-uuid:
+    name: Tests (mysql/uuid)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: warden_test
+        ports:
+          - 3309:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_mysql
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.uuid.xml
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
-          DB_PORT: 3306
+          DB_PORT: 3309
           DB_DATABASE: warden_test
           DB_USERNAME: root
           DB_PASSWORD: password
@@ -135,17 +208,10 @@ jobs:
           WARDEN_ACTOR_MORPH_TYPE: uuid
           WARDEN_BOUNDARY_MORPH_TYPE: uuid
           WARDEN_SUBJECT_MORPH_TYPE: uuid
-        run: vendor/bin/pest --configuration=phpunit.uuid.xml
 
-  tests-pgsql:
-    name: Tests (pgsql/${{ matrix.key-type }})
+  tests-pgsql-id:
+    name: Tests (pgsql/id)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        php: ['8.5']
-        key-type: ['id', 'numeric', 'ulid', 'uuid']
     services:
       postgres:
         image: postgres:16
@@ -159,12 +225,11 @@ jobs:
       - uses: https://github.com/actions/checkout@v6
       - uses: https://github.com/shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: '8.5'
           tools: composer:v2
           extensions: pdo_pgsql
       - run: composer install --no-progress
-      - name: Run tests (id key type)
-        if: matrix.key-type == 'id'
+      - run: vendor/bin/pest
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
@@ -173,13 +238,32 @@ jobs:
           DB_USERNAME: postgres
           DB_PASSWORD: password
           WARDEN_PRIMARY_KEY_TYPE: id
-        run: vendor/bin/pest
-      - name: Run tests (numeric morph types)
-        if: matrix.key-type == 'numeric'
+
+  tests-pgsql-numeric:
+    name: Tests (pgsql/numeric)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: warden_test
+        ports:
+          - 5433:5432
+        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_pgsql
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.numeric.xml
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 5432
+          DB_PORT: 5433
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
           DB_PASSWORD: password
@@ -187,13 +271,32 @@ jobs:
           WARDEN_ACTOR_MORPH_TYPE: numeric
           WARDEN_BOUNDARY_MORPH_TYPE: numeric
           WARDEN_SUBJECT_MORPH_TYPE: numeric
-        run: vendor/bin/pest --configuration=phpunit.numeric.xml
-      - name: Run tests (ulid key type)
-        if: matrix.key-type == 'ulid'
+
+  tests-pgsql-ulid:
+    name: Tests (pgsql/ulid)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: warden_test
+        ports:
+          - 5434:5432
+        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_pgsql
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.ulid.xml
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 5432
+          DB_PORT: 5434
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
           DB_PASSWORD: password
@@ -201,13 +304,32 @@ jobs:
           WARDEN_ACTOR_MORPH_TYPE: ulid
           WARDEN_BOUNDARY_MORPH_TYPE: ulid
           WARDEN_SUBJECT_MORPH_TYPE: ulid
-        run: vendor/bin/pest --configuration=phpunit.ulid.xml
-      - name: Run tests (uuid key type)
-        if: matrix.key-type == 'uuid'
+
+  tests-pgsql-uuid:
+    name: Tests (pgsql/uuid)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: warden_test
+        ports:
+          - 5435:5432
+        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: https://github.com/actions/checkout@v6
+      - uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          extensions: pdo_pgsql
+      - run: composer install --no-progress
+      - run: vendor/bin/pest --configuration=phpunit.uuid.xml
         env:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
-          DB_PORT: 5432
+          DB_PORT: 5435
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
           DB_PASSWORD: password
@@ -215,7 +337,6 @@ jobs:
           WARDEN_ACTOR_MORPH_TYPE: uuid
           WARDEN_BOUNDARY_MORPH_TYPE: uuid
           WARDEN_SUBJECT_MORPH_TYPE: uuid
-        run: vendor/bin/pest --configuration=phpunit.uuid.xml
 
   phpstan:
     name: PHPStan on ${{ matrix.php }} ${{ matrix.composer-flags }}
