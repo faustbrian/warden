@@ -9,6 +9,7 @@
 
 namespace Cline\Warden\Database\Concerns;
 
+use Cline\VariableKeys\Enums\PrimaryKeyType;
 use Cline\VariableKeys\Support\PrimaryKeyGenerator;
 use Cline\Warden\Database\AssignedRole;
 use Cline\Warden\Database\Models;
@@ -374,7 +375,10 @@ trait IsRole
             ];
 
             // Generate primary key for ULID/UUID
-            $primaryKey = PrimaryKeyGenerator::generate();
+            /** @var int|string $configValue */
+            $configValue = config('warden.primary_key_type', 'id');
+            $primaryKeyType = PrimaryKeyType::tryFrom($configValue) ?? PrimaryKeyType::ID;
+            $primaryKey = PrimaryKeyGenerator::generate($primaryKeyType);
 
             if ($primaryKey->requiresValue()) {
                 $record['id'] = $primaryKey->value;

@@ -8,6 +8,7 @@
  */
 
 use Cline\VariableKeys\Enums\PrimaryKeyType;
+use Cline\VariableKeys\Facades\VariableKeys;
 use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Role;
 use Cline\Warden\Database\Scope\Scope;
@@ -81,6 +82,11 @@ describe('Scope getAttachAttributes with Primary Key Generation', function (): v
             // Arrange
             config(['warden.primary_key_type' => PrimaryKeyType::ULID->value]);
 
+            // Re-register models with new primary key type
+            VariableKeys::map([
+                User::class => ['primary_key_type' => PrimaryKeyType::ULID],
+            ]);
+
             // Recreate users table with correct column type
             Schema::dropIfExists('users');
             Schema::create('users', function ($table): void {
@@ -107,6 +113,11 @@ describe('Scope getAttachAttributes with Primary Key Generation', function (): v
         test('getAttachAttributes with authority parameter works with UUID', function (): void {
             // Arrange
             config(['warden.primary_key_type' => PrimaryKeyType::UUID->value]);
+
+            // Re-register models with new primary key type
+            VariableKeys::map([
+                User::class => ['primary_key_type' => PrimaryKeyType::UUID],
+            ]);
 
             // Recreate users table with correct column type
             Schema::dropIfExists('users');

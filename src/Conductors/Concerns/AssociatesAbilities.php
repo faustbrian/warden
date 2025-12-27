@@ -9,6 +9,7 @@
 
 namespace Cline\Warden\Conductors\Concerns;
 
+use Cline\VariableKeys\Facades\VariableKeys;
 use Cline\VariableKeys\Support\PrimaryKeyGenerator;
 use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Permission;
@@ -187,6 +188,7 @@ trait AssociatesAbilities
         /** @phpstan-ignore-next-line Dynamic abilities() relationship */
         $authority->abilities()->attach(
             PrimaryKeyGenerator::enrichPivotDataForIds(
+                VariableKeys::getPrimaryKeyType(Permission::class),
                 $ids,
                 ['forbidden' => $this->forbidding] + $attributes,
             ),

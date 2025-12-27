@@ -10,7 +10,9 @@
 namespace Cline\Warden\Conductors;
 
 use BackedEnum;
+use Cline\VariableKeys\Facades\VariableKeys;
 use Cline\VariableKeys\Support\PrimaryKeyGenerator;
+use Cline\Warden\Database\AssignedRole;
 use Cline\Warden\Database\Models;
 use Cline\Warden\Database\Role;
 use Cline\Warden\Support\CharDetector;
@@ -183,7 +185,11 @@ final class AssignsRoles
 
             /** @phpstan-ignore-next-line Dynamic relationship */
             $authority->roles()->attach(
-                PrimaryKeyGenerator::enrichPivotDataForIds($toAttach->all(), $pivotData),
+                PrimaryKeyGenerator::enrichPivotDataForIds(
+                    VariableKeys::getPrimaryKeyType(AssignedRole::class),
+                    $toAttach->all(),
+                    $pivotData,
+                ),
             );
         }
     }

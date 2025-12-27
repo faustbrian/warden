@@ -9,9 +9,15 @@
 
 namespace Tests;
 
+use Cline\VariableKeys\Enums\PrimaryKeyType;
+use Cline\VariableKeys\Facades\VariableKeys;
 use Cline\Warden\Clipboard\Clipboard;
 use Cline\Warden\Contracts\ClipboardInterface;
+use Cline\Warden\Database\Ability;
+use Cline\Warden\Database\AssignedRole;
 use Cline\Warden\Database\Models;
+use Cline\Warden\Database\Permission;
+use Cline\Warden\Database\Role;
 use Cline\Warden\Guard;
 use Cline\Warden\Http\Middleware\HasPermission;
 use Cline\Warden\Http\Middleware\HasRole;
@@ -27,7 +33,9 @@ use Mockery;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Override;
 use Tests\Fixtures\Models\Account;
+use Tests\Fixtures\Models\Team;
 use Tests\Fixtures\Models\User;
+use Tests\Fixtures\Models\UserWithSoftDeletes;
 
 use function env;
 use function Orchestra\Testbench\artisan;
@@ -56,6 +64,35 @@ abstract class TestCase extends BaseTestCase
         Model::clearBootedModels();
 
         Models::setUsersModel(User::class);
+
+        $primaryKeyType = PrimaryKeyType::tryFrom(env('WARDEN_PRIMARY_KEY_TYPE', 'id')) ?? PrimaryKeyType::ID;
+
+        VariableKeys::map([
+            User::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+            UserWithSoftDeletes::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+            Account::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+            Team::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+            Role::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+            Permission::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+            Ability::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+            AssignedRole::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+        ]);
 
         $keyName = new User()->getKeyName();
         Models::morphKeyMap([

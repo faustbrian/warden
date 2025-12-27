@@ -9,6 +9,7 @@
 
 namespace Cline\Warden\Conductors;
 
+use Cline\VariableKeys\Facades\VariableKeys;
 use Cline\VariableKeys\Support\PrimaryKeyGenerator;
 use Cline\Warden\Conductors\Concerns\FindsAndCreatesAbilities;
 use Cline\Warden\Database\Models;
@@ -248,9 +249,13 @@ final class SyncsRolesAndAbilities
         $toDetach = array_diff($current, $ids);
         $this->detach($toDetach, $relation);
 
+        /** @var array<int, mixed> $toAttach */
+        $toAttach = array_diff($ids, $current);
+
         $relation->attach(
             PrimaryKeyGenerator::enrichPivotDataForIds(
-                array_diff($ids, $current),
+                VariableKeys::getPrimaryKeyType($relation->getPivotClass()),
+                $toAttach,
                 Models::scope()->getAttachAttributes($this->authority),
             ),
         );
