@@ -19,8 +19,21 @@ return new class() extends Migration
     public function up(): void
     {
         Schema::create('posts', function (Blueprint $table): void {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $keyType = config('warden.primary_key_type', 'id');
+
+            match ($keyType) {
+                'ulid' => $table->ulid('id')->primary(),
+                'uuid' => $table->uuid('id')->primary(),
+                default => $table->id(),
+            };
+
+            match ($keyType) {
+                'ulid' => $table->ulid('user_id'),
+                'uuid' => $table->uuid('user_id'),
+                default => $table->foreignId('user_id'),
+            };
+
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('title');
         });
     }
