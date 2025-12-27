@@ -10,15 +10,19 @@ jobs:
     name: Tests (sqlite/id)
     runs-on: ubuntu-latest
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           coverage: pcov
           tools: composer:v2
           extensions: pdo_sqlite
-      - run: composer install --no-progress
-      - run: vendor/bin/pest
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest
         env:
           DB_CONNECTION: sqlite
           WARDEN_PRIMARY_KEY_TYPE: id
@@ -27,14 +31,18 @@ jobs:
     name: Tests (sqlite/numeric)
     runs-on: ubuntu-latest
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_sqlite
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.numeric.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.numeric.xml
         env:
           DB_CONNECTION: sqlite
           WARDEN_PRIMARY_KEY_TYPE: id
@@ -46,14 +54,18 @@ jobs:
     name: Tests (sqlite/ulid)
     runs-on: ubuntu-latest
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_sqlite
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.ulid.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.ulid.xml
         env:
           DB_CONNECTION: sqlite
           WARDEN_PRIMARY_KEY_TYPE: ulid
@@ -65,14 +77,18 @@ jobs:
     name: Tests (sqlite/uuid)
     runs-on: ubuntu-latest
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_sqlite
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.uuid.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.uuid.xml
         env:
           DB_CONNECTION: sqlite
           WARDEN_PRIMARY_KEY_TYPE: uuid
@@ -91,14 +107,18 @@ jobs:
           MYSQL_DATABASE: warden_test
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_mysql
-      - run: composer install --no-progress
-      - run: vendor/bin/pest
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest
         env:
           DB_CONNECTION: mysql
           DB_HOST: mysql
@@ -119,14 +139,18 @@ jobs:
           MYSQL_DATABASE: warden_test
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_mysql
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.numeric.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.numeric.xml
         env:
           DB_CONNECTION: mysql
           DB_HOST: mysql
@@ -150,14 +174,18 @@ jobs:
           MYSQL_DATABASE: warden_test
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_mysql
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.ulid.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.ulid.xml
         env:
           DB_CONNECTION: mysql
           DB_HOST: mysql
@@ -181,14 +209,18 @@ jobs:
           MYSQL_DATABASE: warden_test
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_mysql
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.uuid.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.uuid.xml
         env:
           DB_CONNECTION: mysql
           DB_HOST: mysql
@@ -212,14 +244,18 @@ jobs:
           POSTGRES_DB: warden_test
         options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_pgsql
-      - run: composer install --no-progress
-      - run: vendor/bin/pest
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest
         env:
           DB_CONNECTION: pgsql
           DB_HOST: postgres
@@ -240,14 +276,18 @@ jobs:
           POSTGRES_DB: warden_test
         options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_pgsql
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.numeric.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.numeric.xml
         env:
           DB_CONNECTION: pgsql
           DB_HOST: postgres
@@ -271,14 +311,18 @@ jobs:
           POSTGRES_DB: warden_test
         options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_pgsql
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.ulid.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.ulid.xml
         env:
           DB_CONNECTION: pgsql
           DB_HOST: postgres
@@ -302,14 +346,18 @@ jobs:
           POSTGRES_DB: warden_test
         options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           tools: composer:v2
           extensions: pdo_pgsql
-      - run: composer install --no-progress
-      - run: vendor/bin/pest --configuration=phpunit.uuid.xml
+      - name: Install dependencies
+        run: composer install --no-progress
+      - name: Run tests
+        run: vendor/bin/pest --configuration=phpunit.uuid.xml
         env:
           DB_CONNECTION: pgsql
           DB_HOST: postgres
@@ -330,13 +378,17 @@ jobs:
         php: ['8.5']
         composer-flags: ['']
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-      - run: composer install --no-progress ${{ matrix.composer-flags }}
-      - run: vendor/bin/phpstan
+      - name: Install dependencies
+        run: composer install --no-progress ${{ matrix.composer-flags }}
+      - name: Run PHPStan
+        run: vendor/bin/phpstan
 
   ecs:
     name: Code Style on ${{ matrix.php }} ${{ matrix.composer-flags }}
@@ -346,13 +398,17 @@ jobs:
         php: ['8.5']
         composer-flags: ['']
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-      - run: composer install --no-progress ${{ matrix.composer-flags }}
-      - run: vendor/bin/ecs check
+      - name: Install dependencies
+        run: composer install --no-progress ${{ matrix.composer-flags }}
+      - name: Check code style
+        run: vendor/bin/ecs check
 
   rector:
     name: Rector on ${{ matrix.php }} ${{ matrix.composer-flags }}
@@ -362,10 +418,14 @@ jobs:
         php: ['8.5']
         composer-flags: ['']
     steps:
-      - uses: https://github.com/actions/checkout@v6
-      - uses: https://github.com/shivammathur/setup-php@v2
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
-      - run: composer install --no-progress ${{ matrix.composer-flags }}
-      - run: vendor/bin/rector --dry-run
+      - name: Install dependencies
+        run: composer install --no-progress ${{ matrix.composer-flags }}
+      - name: Run Rector
+        run: vendor/bin/rector --dry-run
