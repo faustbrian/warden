@@ -16,12 +16,13 @@ use Tests\Fixtures\Models\Post;
 use Tests\Fixtures\Models\User;
 
 test('ruler can access model properties via ArrayAccess', function (): void {
-    $user = User::query()->create(['id' => 1, 'name' => 'Alice']);
-    $post = Post::query()->create(['id' => 1, 'user_id' => 2, 'title' => 'Test']);
+    $user = User::query()->create(['name' => 'Alice']);
+    $otherUser = User::query()->create(['name' => 'Bob']);
+    $post = Post::query()->create(['user_id' => $otherUser->id, 'title' => 'Test']);
 
     // Test that models support array access
-    expect($user['id'])->toBe(1);
-    expect($post['user_id'])->toBe(2);
+    expect($user['id'])->toBe($user->id);
+    expect($post['user_id'])->toBe($otherUser->id);
 
     // Test ruler with model objects
     $builder = new RuleBuilder();
@@ -32,11 +33,11 @@ test('ruler can access model properties via ArrayAccess', function (): void {
         'resource' => $post,
     ]);
 
-    // User id=1, post user_id=2, should be false
+    // User and post have different owners, should be false
     expect($proposition->evaluate($context))->toBeFalse();
 
     // Now test with matching IDs
-    $ownPost = Post::query()->create(['id' => 2, 'user_id' => 1, 'title' => 'Own Post']);
+    $ownPost = Post::query()->create(['user_id' => $user->id, 'title' => 'Own Post']);
     $context2 = new Context([
         'authority' => $user,
         'resource' => $ownPost,
@@ -67,8 +68,8 @@ test('ability proposition is saved and loaded correctly', function (): void {
     expect($ability->proposition)->toBeInstanceOf(Proposition::class);
 
     // Test that the reloaded proposition works
-    $user = User::query()->create(['id' => 1, 'name' => 'Alice']);
-    $post = Post::query()->create(['id' => 1, 'user_id' => 1, 'title' => 'Test']);
+    $user = User::query()->create(['name' => 'Alice']);
+    $post = Post::query()->create(['user_id' => $user->id, 'title' => 'Test']);
 
     $context = new Context([
         'authority' => $user,
@@ -79,8 +80,9 @@ test('ability proposition is saved and loaded correctly', function (): void {
 });
 
 test('debug ability lookup during permission check', function (): void {
-    $user = User::query()->create(['id' => 1, 'name' => 'Alice']);
-    $post = Post::query()->create(['id' => 1, 'user_id' => 2, 'title' => 'Test']);
+    $user = User::query()->create(['name' => 'Alice']);
+    $otherUser = User::query()->create(['name' => 'Bob']);
+    $post = Post::query()->create(['user_id' => $otherUser->id, 'title' => 'Test']);
 
     $builder = new PropositionBuilder();
     $proposition = $builder->resourceOwnedBy();
