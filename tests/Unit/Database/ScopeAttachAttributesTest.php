@@ -88,6 +88,7 @@ describe('Scope getAttachAttributes with Primary Key Generation', function (): v
             ]);
 
             // Recreate users table with correct column type
+            Schema::dropIfExists('posts');
             Schema::dropIfExists('users');
             Schema::create('users', function ($table): void {
                 $table->ulid('id')->primary();
@@ -120,6 +121,7 @@ describe('Scope getAttachAttributes with Primary Key Generation', function (): v
             ]);
 
             // Recreate users table with correct column type
+            Schema::dropIfExists('posts');
             Schema::dropIfExists('users');
             Schema::create('users', function ($table): void {
                 $table->uuid('id')->primary();
