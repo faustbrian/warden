@@ -134,7 +134,7 @@ jobs:
         env:
           DB_CONNECTION: mysql
           DB_HOST: mysql
-          DB_PORT: 3307
+          DB_PORT: 3306
           DB_DATABASE: warden_test
           DB_USERNAME: root
           DB_PASSWORD: password
@@ -167,7 +167,7 @@ jobs:
         env:
           DB_CONNECTION: mysql
           DB_HOST: mysql
-          DB_PORT: 3308
+          DB_PORT: 3306
           DB_DATABASE: warden_test
           DB_USERNAME: root
           DB_PASSWORD: password
@@ -200,7 +200,7 @@ jobs:
         env:
           DB_CONNECTION: mysql
           DB_HOST: mysql
-          DB_PORT: 3309
+          DB_PORT: 3306
           DB_DATABASE: warden_test
           DB_USERNAME: root
           DB_PASSWORD: password
@@ -263,7 +263,7 @@ jobs:
         env:
           DB_CONNECTION: pgsql
           DB_HOST: postgres
-          DB_PORT: 5433
+          DB_PORT: 5432
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
           DB_PASSWORD: password
@@ -296,7 +296,7 @@ jobs:
         env:
           DB_CONNECTION: pgsql
           DB_HOST: postgres
-          DB_PORT: 5434
+          DB_PORT: 5432
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
           DB_PASSWORD: password
@@ -329,7 +329,7 @@ jobs:
         env:
           DB_CONNECTION: pgsql
           DB_HOST: postgres
-          DB_PORT: 5435
+          DB_PORT: 5432
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
           DB_PASSWORD: password
