@@ -11,7 +11,6 @@ use Cline\Ruler\Builder\RuleBuilder;
 use Cline\Ruler\Core\Context;
 use Cline\Ruler\Core\Proposition;
 use Cline\Warden\Database\Ability;
-use Cline\Warden\Support\PropositionBuilder;
 use Tests\Fixtures\Models\Post;
 use Tests\Fixtures\Models\User;
 
@@ -47,15 +46,15 @@ test('ruler can access model properties via ArrayAccess', function (): void {
 });
 
 test('ability proposition is saved and loaded correctly', function (): void {
-    $builder = new PropositionBuilder();
-    $proposition = $builder->resourceOwnedBy();
-
-    // Create ability with proposition
+    // Create ability with proposition array config
     $ability = Ability::query()->create([
         'name' => 'test-ability',
         'guard_name' => 'web',
         'subject_type' => Post::class,
-        'proposition' => $proposition,
+        'proposition' => [
+            'method' => 'resourceOwnedBy',
+            'params' => [],
+        ],
     ]);
 
     expect($ability->proposition)->not->toBeNull();
@@ -84,15 +83,15 @@ test('debug ability lookup during permission check', function (): void {
     $otherUser = User::query()->create(['name' => 'Bob']);
     $post = Post::query()->create(['user_id' => $otherUser->id, 'title' => 'Test']);
 
-    $builder = new PropositionBuilder();
-    $proposition = $builder->resourceOwnedBy();
-
-    // Create ability with proposition
+    // Create ability with proposition array config
     $ability = Ability::query()->create([
         'name' => 'edit',
         'guard_name' => 'web',
         'subject_type' => Post::class,
-        'proposition' => $proposition,
+        'proposition' => [
+            'method' => 'resourceOwnedBy',
+            'params' => [],
+        ],
     ]);
 
     // Grant ability to user

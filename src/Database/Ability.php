@@ -12,19 +12,19 @@ namespace Cline\Warden\Database;
 use Cline\Ruler\Core\Proposition;
 use Cline\VariableKeys\Database\Concerns\HasVariablePrimaryKey;
 use Cline\Warden\Database\Concerns\IsAbility;
+use Cline\Warden\Exceptions\InvalidPropositionGetterFormatException;
+use Cline\Warden\Exceptions\InvalidPropositionSetterFormatException;
 use Cline\Warden\Support\PropositionBuilder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use InvalidArgumentException;
 use Override;
 
 use function is_array;
 use function is_string;
 use function json_decode;
 use function json_encode;
-use function serialize;
-use function unserialize;
+use function throw_if;
 
 /**
  * Represents an authorization ability in the system.
@@ -95,24 +95,18 @@ final class Ability extends Model
             return null;
         }
 
-        // Try JSON first (preferred format)
         $config = json_decode($value, true);
 
-        if (is_array($config) && isset($config['method']) && is_string($config['method'])) {
-            $builder = new PropositionBuilder();
+        throw_if(!is_array($config) || !isset($config['method']) || !is_string($config['method']), InvalidPropositionGetterFormatException::missingMethodKey());
 
-            /** @var array<int, mixed> $params */
-            $params = $config['params'] ?? [];
-            $method = $config['method'];
+        $builder = new PropositionBuilder();
 
-            /** @var Proposition */
-            return $builder->{$method}(...$params);
-        }
+        /** @var array<int, mixed> $params */
+        $params = $config['params'] ?? [];
+        $method = $config['method'];
 
-        // Fallback to unserialized (for backwards compat / complex propositions)
-        $result = unserialize($value);
-
-        return $result instanceof Proposition ? $result : null;
+        /** @var Proposition */
+        return $builder->{$method}(...$params);
     }
 
     /**
@@ -126,23 +120,8 @@ final class Ability extends Model
             return;
         }
 
-        // Accept array config directly
-        if (is_array($value)) {
-            $this->attributes['proposition'] = json_encode($value);
+        throw_if(!is_array($value), InvalidPropositionSetterFormatException::mustBeArrayConfig());
 
-            return;
-        }
-
-        // For Proposition objects, serialize for now (fallback)
-        // TODO: Add proper array export to ruler package
-        if ($value instanceof Proposition) {
-            $this->attributes['proposition'] = serialize($value);
-
-            return;
-        }
-
-        throw new InvalidArgumentException(
-            'Proposition must be array config or Proposition instance',
-        );
+        $this->attributes['proposition'] = json_encode($value);
     }
 }

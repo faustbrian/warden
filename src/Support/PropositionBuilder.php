@@ -10,11 +10,12 @@
 namespace Cline\Warden\Support;
 
 use ArrayAccess;
-use BadMethodCallException;
 use Cline\Ruler\Builder\RuleBuilder;
 use Cline\Ruler\Builder\Variable;
 use Cline\Ruler\Core\Proposition;
-use InvalidArgumentException;
+use Cline\Warden\Exceptions\CannotSetPropositionBuilderVariablesException;
+use Cline\Warden\Exceptions\CannotUnsetPropositionBuilderVariablesException;
+use Cline\Warden\Exceptions\InvalidPropositionArgumentException;
 
 use function array_shift;
 use function throw_if;
@@ -106,7 +107,7 @@ final class PropositionBuilder implements ArrayAccess
     public function offsetSet(mixed $name, mixed $value): void
     {
         // Not supported - variables are created via offsetGet
-        throw new BadMethodCallException('Cannot set variables directly on PropositionBuilder');
+        throw CannotSetPropositionBuilderVariablesException::variablesCreatedViaOffsetGet();
     }
 
     /**
@@ -117,7 +118,7 @@ final class PropositionBuilder implements ArrayAccess
     public function offsetUnset(mixed $name): void
     {
         // Not supported - variables are managed by RuleBuilder
-        throw new BadMethodCallException('Cannot unset variables on PropositionBuilder');
+        throw CannotUnsetPropositionBuilderVariablesException::variablesManagedByRuleBuilder();
     }
 
     /**
@@ -241,7 +242,7 @@ final class PropositionBuilder implements ArrayAccess
      */
     public function allOf(Proposition ...$propositions): Proposition
     {
-        throw_if($propositions === [], InvalidArgumentException::class, 'At least one proposition is required');
+        throw_if($propositions === [], InvalidPropositionArgumentException::requiresAtLeastOne());
 
         $result = array_shift($propositions);
 
@@ -263,7 +264,7 @@ final class PropositionBuilder implements ArrayAccess
      */
     public function anyOf(Proposition ...$propositions): Proposition
     {
-        throw_if($propositions === [], InvalidArgumentException::class, 'At least one proposition is required');
+        throw_if($propositions === [], InvalidPropositionArgumentException::requiresAtLeastOne());
 
         $result = array_shift($propositions);
 
