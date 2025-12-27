@@ -1,8 +1,3 @@
----
-title: Removing Permissions
-description: Learn how to retract roles and remove abilities that were previously granted in Warden.
----
-
 Warden can retract roles and remove abilities that were previously granted.
 
 ## Retracting Roles from Users

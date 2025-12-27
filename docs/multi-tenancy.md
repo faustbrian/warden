@@ -1,8 +1,3 @@
----
-title: Multi-Tenancy
-description: Learn how to implement multi-tenant applications with Warden's scoping features.
----
-
 Warden fully supports multi-tenant apps, allowing you to seamlessly integrate Warden's roles and abilities for all tenants within the same app.
 
 ## The Scope Middleware

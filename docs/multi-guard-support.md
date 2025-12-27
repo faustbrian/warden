@@ -1,8 +1,3 @@
----
-title: Multi-Guard Support
-description: Learn how to use Warden with multiple authentication guards for web, API, and RPC applications.
----
-
 Warden fully supports Laravel's multiple authentication guards, allowing you to maintain separate permission systems for different parts of your application (web, API, RPC, etc.).
 
 ## Configuration

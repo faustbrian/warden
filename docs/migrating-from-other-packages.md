@@ -1,8 +1,3 @@
----
-title: Migrating from Other Packages
-description: Learn how to migrate from Spatie Laravel Permission or Silber Bouncer to Warden.
----
-
 Warden provides migrators to help you transition from other popular Laravel permission packages. These migrators preserve all your existing roles, abilities, permissions, and assignments while converting them to Warden's schema.
 
 ## Supported Packages

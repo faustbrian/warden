@@ -1,8 +1,3 @@
----
-title: Querying Users
-description: Learn how to query users by their roles using Warden's query scopes.
----
-
 Warden provides query scopes to filter users by their roles.
 
 ## Query Users by Role

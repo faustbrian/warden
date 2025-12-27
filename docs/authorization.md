@@ -1,8 +1,3 @@
----
-title: Authorization
-description: Learn how Warden integrates with Laravel's authorization features including the Gate, policies, and blade directives.
----
-
 Warden works seamlessly with Laravel's authorization features including the Gate, policies, and blade directives.
 
 ## Using Laravel's Gate

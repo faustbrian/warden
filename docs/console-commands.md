@@ -1,8 +1,3 @@
----
-title: Console Commands
-description: Learn about Warden's console commands for cleaning up unused abilities and orphaned permissions.
----
-
 ## warden:clean
 
 The `warden:clean` command deletes unused abilities. Running this command will delete 2 types of unused abilities.

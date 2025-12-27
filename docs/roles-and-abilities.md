@@ -1,8 +1,3 @@
----
-title: Roles and Abilities
-description: Learn how to create roles, grant abilities, and assign permissions in Warden.
----
-
 Adding roles and abilities to users is extremely easy. You do not have to create a role or an ability in advance. Simply pass the name of the role/ability, and Warden will create it if it doesn't exist.
 
 ## Creating Roles and Abilities

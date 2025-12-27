@@ -1,8 +1,3 @@
----
-title: Ownership
-description: Learn how to allow users to manage models they own using Warden's ownership feature.
----
-
 Warden allows users to manage models they "own" using the ownership feature.
 
 ## Allowing Users to Own Models

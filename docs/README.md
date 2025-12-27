@@ -1,8 +1,3 @@
----
-title: Getting Started
-description: Install and configure Warden for managing roles and abilities in Laravel applications.
----
-
 An elegant, framework-agnostic approach to managing roles and abilities for any app using Eloquent models.
 
 ## Requirements

@@ -1,8 +1,3 @@
----
-title: Model Restrictions
-description: Learn how to restrict abilities to specific model types or instances in Warden.
----
-
 Sometimes you might want to restrict an ability to a specific model type or instance.
 
 ## Restricting to a Model Class

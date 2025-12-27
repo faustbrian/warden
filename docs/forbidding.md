@@ -1,8 +1,3 @@
----
-title: Forbidding Abilities
-description: Learn how to forbid specific abilities for fine-grained access control in Warden.
----
-
 Warden allows you to `forbid` a given ability for more fine-grained control. At times you may wish to grant a user/role an ability that covers a wide range of actions, but then restrict a small subset of those actions.
 
 ## Basic Forbidding

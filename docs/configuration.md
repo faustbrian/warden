@@ -1,8 +1,3 @@
----
-title: Configuration
-description: Customize Warden's behavior through configuration options including cache, tables, models, and ownership settings.
----
-
 Warden ships with sensible defaults, so most of the time there should be no need for any configuration. For finer-grained control, Warden can be customized by calling various configuration methods on the `Warden` class.
 
 If you only use one or two of these config options, you can stick them into your main `AppServiceProvider`'s `boot` method. If they start growing, you may create a separate `WardenServiceProvider` class in your `app/Providers` directory (remember to register it in the `providers` config array).
