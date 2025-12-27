@@ -103,7 +103,7 @@ jobs:
       - run: vendor/bin/pest
         env:
           DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
+          DB_HOST: mysql
           DB_PORT: 3306
           DB_DATABASE: warden_test
           DB_USERNAME: root
@@ -133,7 +133,7 @@ jobs:
       - run: vendor/bin/pest --configuration=phpunit.numeric.xml
         env:
           DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
+          DB_HOST: mysql
           DB_PORT: 3307
           DB_DATABASE: warden_test
           DB_USERNAME: root
@@ -166,7 +166,7 @@ jobs:
       - run: vendor/bin/pest --configuration=phpunit.ulid.xml
         env:
           DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
+          DB_HOST: mysql
           DB_PORT: 3308
           DB_DATABASE: warden_test
           DB_USERNAME: root
@@ -199,7 +199,7 @@ jobs:
       - run: vendor/bin/pest --configuration=phpunit.uuid.xml
         env:
           DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
+          DB_HOST: mysql
           DB_PORT: 3309
           DB_DATABASE: warden_test
           DB_USERNAME: root
@@ -232,7 +232,7 @@ jobs:
       - run: vendor/bin/pest
         env:
           DB_CONNECTION: pgsql
-          DB_HOST: 127.0.0.1
+          DB_HOST: postgres
           DB_PORT: 5432
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
@@ -262,7 +262,7 @@ jobs:
       - run: vendor/bin/pest --configuration=phpunit.numeric.xml
         env:
           DB_CONNECTION: pgsql
-          DB_HOST: 127.0.0.1
+          DB_HOST: postgres
           DB_PORT: 5433
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
@@ -295,7 +295,7 @@ jobs:
       - run: vendor/bin/pest --configuration=phpunit.ulid.xml
         env:
           DB_CONNECTION: pgsql
-          DB_HOST: 127.0.0.1
+          DB_HOST: postgres
           DB_PORT: 5434
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
@@ -328,7 +328,7 @@ jobs:
       - run: vendor/bin/pest --configuration=phpunit.uuid.xml
         env:
           DB_CONNECTION: pgsql
-          DB_HOST: 127.0.0.1
+          DB_HOST: postgres
           DB_PORT: 5435
           DB_DATABASE: warden_test
           DB_USERNAME: postgres
