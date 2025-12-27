@@ -9,6 +9,7 @@
 
 namespace Tests\Fixtures\Models;
 
+use Cline\VariableKeys\Database\Concerns\HasVariablePrimaryKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
 final class Post extends Model
 {
     use HasFactory;
+    use HasVariablePrimaryKey;
 
     public $timestamps = false;
 

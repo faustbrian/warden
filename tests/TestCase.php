@@ -33,6 +33,7 @@ use Mockery;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Override;
 use Tests\Fixtures\Models\Account;
+use Tests\Fixtures\Models\Post;
 use Tests\Fixtures\Models\Team;
 use Tests\Fixtures\Models\User;
 use Tests\Fixtures\Models\UserWithSoftDeletes;
@@ -90,6 +91,9 @@ abstract class TestCase extends BaseTestCase
                 'primary_key_type' => $primaryKeyType,
             ],
             AssignedRole::class => [
+                'primary_key_type' => $primaryKeyType,
+            ],
+            Post::class => [
                 'primary_key_type' => $primaryKeyType,
             ],
         ]);
