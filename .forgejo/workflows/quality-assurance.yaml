@@ -48,13 +48,10 @@ jobs:
           coverage: ${{ matrix.laravel == '12' && matrix.db == 'sqlite' && matrix.key == 'id' && 'pcov' || 'none' }}
           tools: composer:v2
           extensions: ${{ matrix.db == 'sqlite' && 'pdo_sqlite' || (matrix.db == 'mysql' && 'pdo_mysql' || 'pdo_pgsql') }}
-      - name: Install Laravel ${{ matrix.laravel }}
-        run: |
-          composer require "illuminate/auth:^${{ matrix.laravel }}.0" "illuminate/cache:^${{ matrix.laravel }}.0" "illuminate/console:^${{ matrix.laravel }}.0" "illuminate/container:^${{ matrix.laravel }}.0" "illuminate/contracts:^${{ matrix.laravel }}.0" "illuminate/database:^${{ matrix.laravel }}.0" "illuminate/events:^${{ matrix.laravel }}.0" "orchestra/testbench:${{ matrix.testbench }}" --no-update --no-interaction
-          composer update --prefer-dist --no-progress --no-interaction
-      - name: Run tests
       - name: Install dependencies
         run: composer install --no-progress --no-interaction --ignore-platform-reqs
+      - name: Run tests
+        env:
           DB_PORT: ${{ matrix.db == 'mysql' && '3306' || (matrix.db == 'pgsql' && '5432' || '') }}
           DB_DATABASE: ${{ matrix.db != 'sqlite' && 'warden_test' || '' }}
           DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || (matrix.db == 'pgsql' && 'postgres' || '') }}
@@ -63,6 +60,7 @@ jobs:
           WARDEN_ACTOR_MORPH_TYPE: ${{ matrix.key }}
           WARDEN_BOUNDARY_MORPH_TYPE: ${{ matrix.key }}
           WARDEN_SUBJECT_MORPH_TYPE: ${{ matrix.key }}
+        run: vendor/bin/pest --coverage --min=90
 
   phpstan:
     name: PHPStan on ${{ matrix.php }} ${{ matrix.composer-flags }}
