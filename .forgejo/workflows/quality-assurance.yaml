@@ -6,243 +6,38 @@ on:
   pull_request: ~
 
 jobs:
-  tests-sqlite-id:
-    name: Tests (sqlite/id)
+  tests:
+    name: Tests (L${{ matrix.laravel }}/${{ matrix.db }}/${{ matrix.key }})
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          coverage: pcov
-          tools: composer:v2
-          extensions: pdo_sqlite
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest
-        env:
-          DB_CONNECTION: sqlite
-          WARDEN_PRIMARY_KEY_TYPE: id
-
-  tests-sqlite-numeric:
-    name: Tests (sqlite/numeric)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_sqlite
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.numeric.xml
-        env:
-          DB_CONNECTION: sqlite
-          WARDEN_PRIMARY_KEY_TYPE: id
-          WARDEN_ACTOR_MORPH_TYPE: numeric
-          WARDEN_BOUNDARY_MORPH_TYPE: numeric
-          WARDEN_SUBJECT_MORPH_TYPE: numeric
-
-  tests-sqlite-ulid:
-    name: Tests (sqlite/ulid)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_sqlite
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.ulid.xml
-        env:
-          DB_CONNECTION: sqlite
-          WARDEN_PRIMARY_KEY_TYPE: ulid
-          WARDEN_ACTOR_MORPH_TYPE: ulid
-          WARDEN_BOUNDARY_MORPH_TYPE: ulid
-          WARDEN_SUBJECT_MORPH_TYPE: ulid
-
-  tests-sqlite-uuid:
-    name: Tests (sqlite/uuid)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_sqlite
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.uuid.xml
-        env:
-          DB_CONNECTION: sqlite
-          WARDEN_PRIMARY_KEY_TYPE: uuid
-          WARDEN_ACTOR_MORPH_TYPE: uuid
-          WARDEN_BOUNDARY_MORPH_TYPE: uuid
-          WARDEN_SUBJECT_MORPH_TYPE: uuid
-
-  tests-mysql-id:
-    name: Tests (mysql/id)
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        laravel: ['10', '11', '12']
+        db: ['sqlite', 'mysql', 'pgsql']
+        key: ['id', 'numeric', 'ulid', 'uuid']
+        include:
+          # Laravel 10
+          - laravel: '10'
+            testbench: '^8.0'
+          # Laravel 11
+          - laravel: '11'
+            testbench: '^9.0'
+          # Laravel 12
+          - laravel: '12'
+            testbench: '^10.0'
     services:
       mysql:
-        image: mysql:8.0
+        image: ${{ matrix.db == 'mysql' && 'mysql:8.0' || '' }}
         env:
           MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: warden_test
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_mysql
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: mysql
-          DB_PORT: 3306
-          DB_DATABASE: warden_test
-          DB_USERNAME: root
-          DB_PASSWORD: password
-          WARDEN_PRIMARY_KEY_TYPE: id
-
-  tests-mysql-numeric:
-    name: Tests (mysql/numeric)
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: warden_test
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_mysql
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.numeric.xml
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: mysql
-          DB_PORT: 3306
-          DB_DATABASE: warden_test
-          DB_USERNAME: root
-          DB_PASSWORD: password
-          WARDEN_PRIMARY_KEY_TYPE: id
-          WARDEN_ACTOR_MORPH_TYPE: numeric
-          WARDEN_BOUNDARY_MORPH_TYPE: numeric
-          WARDEN_SUBJECT_MORPH_TYPE: numeric
-
-  tests-mysql-ulid:
-    name: Tests (mysql/ulid)
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: warden_test
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_mysql
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.ulid.xml
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: mysql
-          DB_PORT: 3306
-          DB_DATABASE: warden_test
-          DB_USERNAME: root
-          DB_PASSWORD: password
-          WARDEN_PRIMARY_KEY_TYPE: ulid
-          WARDEN_ACTOR_MORPH_TYPE: ulid
-          WARDEN_BOUNDARY_MORPH_TYPE: ulid
-          WARDEN_SUBJECT_MORPH_TYPE: ulid
-
-  tests-mysql-uuid:
-    name: Tests (mysql/uuid)
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: warden_test
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_mysql
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.uuid.xml
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: mysql
-          DB_PORT: 3306
-          DB_DATABASE: warden_test
-          DB_USERNAME: root
-          DB_PASSWORD: password
-          WARDEN_PRIMARY_KEY_TYPE: uuid
-          WARDEN_ACTOR_MORPH_TYPE: uuid
-          WARDEN_BOUNDARY_MORPH_TYPE: uuid
-          WARDEN_SUBJECT_MORPH_TYPE: uuid
-
-  tests-pgsql-id:
-    name: Tests (pgsql/id)
-    runs-on: ubuntu-latest
-    services:
+        options: ${{ matrix.db == 'mysql' && '--health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3' || '' }}
       postgres:
-        image: postgres:16
+        image: ${{ matrix.db == 'pgsql' && 'postgres:16' || '' }}
         env:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: warden_test
-        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
+        options: ${{ matrix.db == 'pgsql' && '--health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3' || '' }}
     steps:
       - name: Checkout repository
         uses: https://github.com/actions/checkout@v6
@@ -250,125 +45,26 @@ jobs:
         uses: https://github.com/shivammathur/setup-php@v2
         with:
           php-version: '8.5'
+          coverage: ${{ matrix.laravel == '12' && matrix.db == 'sqlite' && matrix.key == 'id' && 'pcov' || 'none' }}
           tools: composer:v2
-          extensions: pdo_pgsql
-      - name: Install dependencies
-        run: composer install --no-progress
+          extensions: ${{ matrix.db == 'sqlite' && 'pdo_sqlite' || (matrix.db == 'mysql' && 'pdo_mysql' || 'pdo_pgsql') }}
+      - name: Install Laravel ${{ matrix.laravel }}
+        run: |
+          composer require "illuminate/auth:^${{ matrix.laravel }}.0" "illuminate/cache:^${{ matrix.laravel }}.0" "illuminate/console:^${{ matrix.laravel }}.0" "illuminate/container:^${{ matrix.laravel }}.0" "illuminate/contracts:^${{ matrix.laravel }}.0" "illuminate/database:^${{ matrix.laravel }}.0" "illuminate/events:^${{ matrix.laravel }}.0" "orchestra/testbench:${{ matrix.testbench }}" --no-update --no-interaction
+          composer update --prefer-dist --no-progress --no-interaction
       - name: Run tests
-        run: vendor/bin/pest
+        run: vendor/bin/pest ${{ matrix.key != 'id' && format('--configuration=phpunit.{0}.xml', matrix.key) || '' }}
         env:
-          DB_CONNECTION: pgsql
-          DB_HOST: postgres
-          DB_PORT: 5432
-          DB_DATABASE: warden_test
-          DB_USERNAME: postgres
-          DB_PASSWORD: password
-          WARDEN_PRIMARY_KEY_TYPE: id
-
-  tests-pgsql-numeric:
-    name: Tests (pgsql/numeric)
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: warden_test
-        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_pgsql
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.numeric.xml
-        env:
-          DB_CONNECTION: pgsql
-          DB_HOST: postgres
-          DB_PORT: 5432
-          DB_DATABASE: warden_test
-          DB_USERNAME: postgres
-          DB_PASSWORD: password
-          WARDEN_PRIMARY_KEY_TYPE: id
-          WARDEN_ACTOR_MORPH_TYPE: numeric
-          WARDEN_BOUNDARY_MORPH_TYPE: numeric
-          WARDEN_SUBJECT_MORPH_TYPE: numeric
-
-  tests-pgsql-ulid:
-    name: Tests (pgsql/ulid)
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: warden_test
-        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_pgsql
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.ulid.xml
-        env:
-          DB_CONNECTION: pgsql
-          DB_HOST: postgres
-          DB_PORT: 5432
-          DB_DATABASE: warden_test
-          DB_USERNAME: postgres
-          DB_PASSWORD: password
-          WARDEN_PRIMARY_KEY_TYPE: ulid
-          WARDEN_ACTOR_MORPH_TYPE: ulid
-          WARDEN_BOUNDARY_MORPH_TYPE: ulid
-          WARDEN_SUBJECT_MORPH_TYPE: ulid
-
-  tests-pgsql-uuid:
-    name: Tests (pgsql/uuid)
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: warden_test
-        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-      - name: Checkout repository
-        uses: https://github.com/actions/checkout@v6
-      - name: Set up PHP
-        uses: https://github.com/shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          tools: composer:v2
-          extensions: pdo_pgsql
-      - name: Install dependencies
-        run: composer install --no-progress
-      - name: Run tests
-        run: vendor/bin/pest --configuration=phpunit.uuid.xml
-        env:
-          DB_CONNECTION: pgsql
-          DB_HOST: postgres
-          DB_PORT: 5432
-          DB_DATABASE: warden_test
-          DB_USERNAME: postgres
-          DB_PASSWORD: password
-          WARDEN_PRIMARY_KEY_TYPE: uuid
-          WARDEN_ACTOR_MORPH_TYPE: uuid
-          WARDEN_BOUNDARY_MORPH_TYPE: uuid
-          WARDEN_SUBJECT_MORPH_TYPE: uuid
+          DB_CONNECTION: ${{ matrix.db }}
+          DB_HOST: ${{ matrix.db == 'mysql' && 'mysql' || (matrix.db == 'pgsql' && 'postgres' || '') }}
+          DB_PORT: ${{ matrix.db == 'mysql' && '3306' || (matrix.db == 'pgsql' && '5432' || '') }}
+          DB_DATABASE: ${{ matrix.db != 'sqlite' && 'warden_test' || '' }}
+          DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || (matrix.db == 'pgsql' && 'postgres' || '') }}
+          DB_PASSWORD: ${{ matrix.db != 'sqlite' && 'password' || '' }}
+          WARDEN_PRIMARY_KEY_TYPE: ${{ matrix.key == 'uuid' && 'uuid' || (matrix.key == 'ulid' && 'ulid' || 'id') }}
+          WARDEN_ACTOR_MORPH_TYPE: ${{ matrix.key }}
+          WARDEN_BOUNDARY_MORPH_TYPE: ${{ matrix.key }}
+          WARDEN_SUBJECT_MORPH_TYPE: ${{ matrix.key }}
 
   phpstan:
     name: PHPStan on ${{ matrix.php }} ${{ matrix.composer-flags }}
