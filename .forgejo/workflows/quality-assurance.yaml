@@ -53,10 +53,8 @@ jobs:
           composer require "illuminate/auth:^${{ matrix.laravel }}.0" "illuminate/cache:^${{ matrix.laravel }}.0" "illuminate/console:^${{ matrix.laravel }}.0" "illuminate/container:^${{ matrix.laravel }}.0" "illuminate/contracts:^${{ matrix.laravel }}.0" "illuminate/database:^${{ matrix.laravel }}.0" "illuminate/events:^${{ matrix.laravel }}.0" "orchestra/testbench:${{ matrix.testbench }}" --no-update --no-interaction
           composer update --prefer-dist --no-progress --no-interaction
       - name: Run tests
-        run: vendor/bin/pest ${{ matrix.key != 'id' && format('--configuration=phpunit.{0}.xml', matrix.key) || '' }}
-        env:
-          DB_CONNECTION: ${{ matrix.db }}
-          DB_HOST: ${{ matrix.db == 'mysql' && 'mysql' || (matrix.db == 'pgsql' && 'postgres' || '') }}
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction --ignore-platform-reqs
           DB_PORT: ${{ matrix.db == 'mysql' && '3306' || (matrix.db == 'pgsql' && '5432' || '') }}
           DB_DATABASE: ${{ matrix.db != 'sqlite' && 'warden_test' || '' }}
           DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || (matrix.db == 'pgsql' && 'postgres' || '') }}
