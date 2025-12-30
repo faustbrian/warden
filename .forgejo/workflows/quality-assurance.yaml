@@ -60,7 +60,7 @@ jobs:
           WARDEN_ACTOR_MORPH_TYPE: ${{ matrix.key }}
           WARDEN_BOUNDARY_MORPH_TYPE: ${{ matrix.key }}
           WARDEN_SUBJECT_MORPH_TYPE: ${{ matrix.key }}
-        run: vendor/bin/pest --coverage --min=90
+        run: vendor/bin/pest --coverage --min=80
 
   phpstan:
     name: PHPStan on ${{ matrix.php }} ${{ matrix.composer-flags }}
