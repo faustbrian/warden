@@ -1,0 +1,123 @@
+---
+name: Quality Assurance
+on:
+  push:
+    branches: ['main']
+  pull_request: ~
+
+jobs:
+  tests:
+    name: Tests (L${{ matrix.laravel }}/${{ matrix.db }}/${{ matrix.key }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        laravel: ['10', '11', '12']
+        db: ['sqlite', 'mysql', 'pgsql']
+        key: ['id', 'numeric', 'ulid', 'uuid']
+        include:
+          # Laravel 10
+          - laravel: '10'
+            testbench: '^8.0'
+          # Laravel 11
+          - laravel: '11'
+            testbench: '^9.0'
+          # Laravel 12
+          - laravel: '12'
+            testbench: '^10.0'
+    services:
+      mysql:
+        image: ${{ matrix.db == 'mysql' && 'mysql:8.0' || '' }}
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: warden_test
+        options: ${{ matrix.db == 'mysql' && '--health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3' || '' }}
+      postgres:
+        image: ${{ matrix.db == 'pgsql' && 'postgres:16' || '' }}
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: warden_test
+        options: ${{ matrix.db == 'pgsql' && '--health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=3' || '' }}
+    steps:
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: pcov
+          tools: composer:v2
+          extensions: ${{ matrix.db == 'sqlite' && 'pdo_sqlite' || (matrix.db == 'mysql' && 'pdo_mysql' || 'pdo_pgsql') }}
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction --ignore-platform-reqs
+      - name: Run tests
+        env:
+          DB_PORT: ${{ matrix.db == 'mysql' && '3306' || (matrix.db == 'pgsql' && '5432' || '') }}
+          DB_DATABASE: ${{ matrix.db != 'sqlite' && 'warden_test' || '' }}
+          DB_USERNAME: ${{ matrix.db == 'mysql' && 'root' || (matrix.db == 'pgsql' && 'postgres' || '') }}
+          DB_PASSWORD: ${{ matrix.db != 'sqlite' && 'password' || '' }}
+          WARDEN_PRIMARY_KEY_TYPE: ${{ matrix.key == 'uuid' && 'uuid' || (matrix.key == 'ulid' && 'ulid' || 'id') }}
+          WARDEN_ACTOR_MORPH_TYPE: ${{ matrix.key }}
+          WARDEN_BOUNDARY_MORPH_TYPE: ${{ matrix.key }}
+          WARDEN_SUBJECT_MORPH_TYPE: ${{ matrix.key }}
+        run: vendor/bin/pest --coverage --min=80
+
+  phpstan:
+    name: PHPStan on ${{ matrix.php }} ${{ matrix.composer-flags }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.5']
+        composer-flags: ['']
+    steps:
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+      - name: Install dependencies
+        run: composer install --no-progress ${{ matrix.composer-flags }}
+      - name: Run PHPStan
+        run: vendor/bin/phpstan
+
+  ecs:
+    name: Code Style on ${{ matrix.php }} ${{ matrix.composer-flags }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.5']
+        composer-flags: ['']
+    steps:
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+      - name: Install dependencies
+        run: composer install --no-progress ${{ matrix.composer-flags }}
+      - name: Check code style
+        run: vendor/bin/ecs check
+
+  rector:
+    name: Rector on ${{ matrix.php }} ${{ matrix.composer-flags }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.5']
+        composer-flags: ['']
+    steps:
+      - name: Checkout repository
+        uses: https://github.com/actions/checkout@v6
+      - name: Set up PHP
+        uses: https://github.com/shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+      - name: Install dependencies
+        run: composer install --no-progress ${{ matrix.composer-flags }}
+      - name: Run Rector
+        run: vendor/bin/rector --dry-run
