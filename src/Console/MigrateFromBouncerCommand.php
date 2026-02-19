@@ -1,0 +1,117 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Cline\Warden\Console;
+
+use Cline\Warden\Migrators\BouncerMigrator;
+use Illuminate\Console\Command;
+use Illuminate\Contracts\Config\Repository;
+
+use function assert;
+use function is_array;
+use function is_bool;
+use function is_string;
+use function sprintf;
+
+/**
+ * Artisan command to migrate from Silber's Bouncer package.
+ *
+ * This command migrates roles, abilities, and assignments from Bouncer
+ * to Warden's authorization system. The migration process preserves all
+ * role and ability relationships while converting them to Warden's data
+ * structure for seamless transition between authorization packages.
+ *
+ * @author Brian Faust <brian@cline.sh>
+ *
+ * @see BouncerMigrator
+ */
+final class MigrateFromBouncerCommand extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'warden:bouncer
+                            {--log-channel=migration : The log channel to use for migration output}
+                            {--guard= : The guard name to use for migrated roles and abilities}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Migrate roles and abilities from Bouncer to Warden';
+
+    /**
+     * Execute the console command.
+     *
+     * Validates the authentication configuration to determine the user model,
+     * then delegates the actual migration work to the BouncerMigrator. Ensures
+     * all required configuration values are present before proceeding with migration.
+     *
+     * @param Repository $config The Laravel configuration repository for accessing auth settings
+     *
+     * @return int Command exit code (self::SUCCESS or self::FAILURE)
+     */
+    public function handle(Repository $config): int
+    {
+        $this->info('Starting migration from Bouncer to Warden...');
+
+        $guard = $config->get('auth.defaults.guard');
+
+        if ($guard === null || !is_string($guard)) {
+            $this->error('Unable to determine default authentication guard.');
+
+            return self::FAILURE;
+        }
+
+        $provider = $config->get(sprintf('auth.guards.%s.provider', $guard));
+
+        if ($provider === null || !is_string($provider)) {
+            $this->error('Unable to determine authentication provider.');
+
+            return self::FAILURE;
+        }
+
+        $userModel = $config->get(sprintf('auth.providers.%s.model', $provider));
+
+        if (!is_string($userModel)) {
+            $this->error('Unable to determine user model.');
+
+            return self::FAILURE;
+        }
+
+        $logChannel = $this->option('log-channel');
+        assert(is_string($logChannel));
+
+        $guardName = $this->option('guard');
+
+        $migrationTracking = $config->get('warden.migrators.bouncer.migration_tracking', [
+            'enabled' => false,
+            'column' => 'migrated_at',
+        ]);
+        assert(is_array($migrationTracking));
+        assert(is_bool($migrationTracking['enabled'] ?? false));
+        assert(is_string($migrationTracking['column'] ?? 'migrated_at'));
+
+        /** @var array<string, bool|string> $migrationTracking */
+        $migrator = new BouncerMigrator(
+            $userModel,
+            $logChannel,
+            is_string($guardName) ? $guardName : null,
+            $migrationTracking,
+        );
+        $migrator->migrate();
+
+        $this->info('Migration completed successfully!');
+
+        return self::SUCCESS;
+    }
+}
