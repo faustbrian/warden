@@ -1,0 +1,126 @@
+<?php declare(strict_types=1);
+
+/**
+ * Copyright (C) Brian Faust
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Fixtures\Enums\RoleEnum;
+use Tests\Fixtures\Models\User;
+
+describe('User Is Query Scopes', function (): void {
+    describe('Happy Paths', function (): void {
+        test('filters users by single role assignment', function (): void {
+            // Arrange
+            $user1 = User::query()->create(['name' => 'Joseph']);
+            $user2 = User::query()->create(['name' => 'Silber']);
+
+            $user1->assign('reader');
+            $user2->assign('subscriber');
+
+            // Act
+            $users = User::query()->whereIs('reader')->get();
+
+            // Assert
+            expect($users)->toHaveCount(1);
+            expect($users->first()->name)->toEqual('Joseph');
+        });
+
+        test('filters users by single enum role assignment', function (): void {
+            // Arrange
+            $user1 = User::query()->create(['name' => 'Admin Joe']);
+            $user2 = User::query()->create(['name' => 'Admin Silvia']);
+
+            $user1->assign(RoleEnum::Admin->value);
+            $user2->assign('editor');
+
+            // Act
+            $users = User::query()->whereIs(RoleEnum::Admin)->get();
+
+            // Assert
+            expect($users)->toHaveCount(1);
+            expect($users->first()->name)->toEqual('Admin Joe');
+        });
+
+        test('filters users having any of multiple roles', function (): void {
+            // Arrange
+            $user1 = User::query()->create(['name' => 'Joseph']);
+            $user2 = User::query()->create(['name' => 'Silber']);
+
+            $user1->assign('reader');
+            $user2->assign('subscriber');
+
+            // Act
+            $users = User::query()->whereIs('admin', 'subscriber')->get();
+
+            // Assert
+            expect($users)->toHaveCount(1);
+            expect($users->first()->name)->toEqual('Silber');
+        });
+
+        test('filters users having all of multiple roles', function (): void {
+            // Arrange
+            $user1 = User::query()->create(['name' => 'Joseph']);
+            $user2 = User::query()->create(['name' => 'Silber']);
+
+            $user1->assign('reader')->assign('subscriber');
+            $user2->assign('subscriber');
+
+            // Act
+            $users = User::query()->whereIsAll('subscriber', 'reader')->get();
+
+            // Assert
+            expect($users)->toHaveCount(1);
+            expect($users->first()->name)->toEqual('Joseph');
+        });
+    });
+
+    describe('Sad Paths', function (): void {
+        test('filters users not having specific role', function (): void {
+            // Arrange
+            $user1 = User::query()->create();
+            $user2 = User::query()->create();
+            $user3 = User::query()->create();
+
+            $user1->assign('admin');
+            $user2->assign('editor');
+            $user3->assign('subscriber');
+
+            // Act
+            $users = User::query()->whereIsNot('admin')->get();
+
+            // Assert
+            expect($users)->toHaveCount(2);
+            expect($users->contains($user1))->toBeFalse();
+            expect($users->contains($user2))->toBeTrue();
+            expect($users->contains($user3))->toBeTrue();
+        });
+
+        test('filters users not having any of multiple roles', function (): void {
+            // Arrange
+            $user1 = User::query()->create();
+            $user2 = User::query()->create();
+            $user3 = User::query()->create();
+
+            $user1->assign('admin');
+            $user2->assign('editor');
+            $user3->assign('subscriber');
+
+            // Act
+            $users = User::query()->whereIsNot('superadmin', 'editor', 'subscriber')->get();
+
+            // Assert
+            expect($users)->toHaveCount(1);
+            expect($users->contains($user1))->toBeTrue();
+            expect($users->contains($user2))->toBeFalse();
+            expect($users->contains($user3))->toBeFalse();
+        });
+    });
+});
+
+/**
+ * @author Brian Faust <brian@cline.sh>
+ */
