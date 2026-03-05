@@ -9,6 +9,9 @@
 
 namespace Cline\Warden\Exceptions;
 
+use Facade\IgnitionContracts\BaseSolution;
+use Facade\IgnitionContracts\ProvidesSolution;
+use Facade\IgnitionContracts\Solution;
 use RuntimeException;
 
 /**
@@ -21,7 +24,7 @@ use RuntimeException;
  *
  * @author Brian Faust <brian@cline.sh>
  */
-final class InvalidConfigurationException extends RuntimeException implements WardenException
+final class InvalidConfigurationException extends RuntimeException implements ProvidesSolution, WardenException
 {
     /**
      * Create an exception for conflicting morph key map configurations.
@@ -39,5 +42,17 @@ final class InvalidConfigurationException extends RuntimeException implements Wa
             'Cannot configure both morphKeyMap and enforceMorphKeyMap simultaneously. '.
             'Choose one: use morphKeyMap for optional mapping or enforceMorphKeyMap for strict enforcement.',
         );
+    }
+
+    public function getSolution(): Solution
+    {
+        /** @var BaseSolution $solution */
+        $solution = BaseSolution::create('Review package usage and configuration.');
+
+        return $solution
+            ->setSolutionDescription('Exception: '.$this->getMessage())
+            ->setDocumentationLinks([
+                'Package documentation' => 'https://github.com/cline/warden',
+            ]);
     }
 }
