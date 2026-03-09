@@ -1,20 +1,22 @@
 ## Table of Contents
 
-1. Getting Started (`docs/README.md`)
-2. Roles and Abilities (`docs/roles-and-abilities.md`)
-3. Model Restrictions (`docs/model-restrictions.md`)
-4. Ownership (`docs/ownership.md`)
-5. Removing Permissions (`docs/removing-permissions.md`)
-6. Forbidding (`docs/forbidding.md`)
-7. Checking Permissions (`docs/checking-permissions.md`)
-8. Querying (`docs/querying.md`)
-9. Authorization (`docs/authorization.md`)
-10. Multi-Tenancy (`docs/multi-tenancy.md`)
-11. Configuration (`docs/configuration.md`)
-12. Console Commands (`docs/console-commands.md`)
-13. Conditional Permissions (`docs/conditional-permissions.md`)
-14. Migrating From Other Packages (`docs/migrating-from-other-packages.md`)
-15. Multi Guard Support (`docs/multi-guard-support.md`)
+1. [Getting Started](#doc-docs-readme) (`docs/README.md`)
+2. [Roles and Abilities](#doc-docs-roles-and-abilities) (`docs/roles-and-abilities.md`)
+3. [Model Restrictions](#doc-docs-model-restrictions) (`docs/model-restrictions.md`)
+4. [Ownership](#doc-docs-ownership) (`docs/ownership.md`)
+5. [Removing Permissions](#doc-docs-removing-permissions) (`docs/removing-permissions.md`)
+6. [Forbidding](#doc-docs-forbidding) (`docs/forbidding.md`)
+7. [Checking Permissions](#doc-docs-checking-permissions) (`docs/checking-permissions.md`)
+8. [Querying](#doc-docs-querying) (`docs/querying.md`)
+9. [Authorization](#doc-docs-authorization) (`docs/authorization.md`)
+10. [Multi-Tenancy](#doc-docs-multi-tenancy) (`docs/multi-tenancy.md`)
+11. [Configuration](#doc-docs-configuration) (`docs/configuration.md`)
+12. [Console Commands](#doc-docs-console-commands) (`docs/console-commands.md`)
+13. [Conditional Permissions](#doc-docs-conditional-permissions) (`docs/conditional-permissions.md`)
+14. [Migrating From Other Packages](#doc-docs-migrating-from-other-packages) (`docs/migrating-from-other-packages.md`)
+15. [Multi Guard Support](#doc-docs-multi-guard-support) (`docs/multi-guard-support.md`)
+<a id="doc-docs-readme"></a>
+
 An elegant, framework-agnostic approach to managing roles and abilities for any app using Eloquent models.
 
 ## Requirements
@@ -56,11 +58,11 @@ Then run the migrations:
 php artisan migrate
 ```
 
-**Migrating from another package?** Check out the [Migrating from Other Packages](migrating-from-other-packages.md) guide for instructions on migrating from Spatie Laravel Permission or Silber Bouncer.
+**Migrating from another package?** Check out the [Migrating from Other Packages](#doc-docs-migrating-from-other-packages) guide for instructions on migrating from Spatie Laravel Permission or Silber Bouncer.
 
-**Using multiple authentication guards?** See the [Multi-Guard Support](multi-guard-support.md) guide to learn how to maintain separate permission systems for web, API, and RPC guards.
+**Using multiple authentication guards?** See the [Multi-Guard Support](#doc-docs-multi-guard-support) guide to learn how to maintain separate permission systems for web, API, and RPC guards.
 
-**Need conditional permissions?** See the [Conditional Permissions](conditional-permissions.md) guide to learn how to use propositions for complex authorization rules like resource ownership, time-based access, and approval limits.
+**Need conditional permissions?** See the [Conditional Permissions](#doc-docs-conditional-permissions) guide to learn how to use propositions for complex authorization rules like resource ownership, time-based access, and approval limits.
 
 ## Using the Facade
 
@@ -174,6 +176,8 @@ Set which model is used as the user model throughout your app:
 $warden->useUserModel(User::class);
 ```
 
+<a id="doc-docs-roles-and-abilities"></a>
+
 Adding roles and abilities to users is extremely easy. You do not have to create a role or an ability in advance. Simply pass the name of the role/ability, and Warden will create it if it doesn't exist.
 
 ## Creating Roles and Abilities
@@ -186,7 +190,7 @@ Warden::allow('admin')->to('ban-users');
 
 That's it. Behind the scenes, Warden will create both a `Role` model and an `Ability` model for you.
 
-**Note:** Roles and abilities are scoped to the configured guard (default: `web`). For applications using multiple guards, see [Multi-Guard Support](multi-guard-support.md).
+**Note:** Roles and abilities are scoped to the configured guard (default: `web`). For applications using multiple guards, see [Multi-Guard Support](#doc-docs-multi-guard-support).
 
 If you want to add additional attributes to the role/ability, such as a human-readable title, you can manually create them using the `role` and `ability` methods:
 
@@ -356,6 +360,8 @@ Supported values:
 
 **Note:** This configuration must be set before running migrations, as it determines the database schema structure.
 
+<a id="doc-docs-model-restrictions"></a>
+
 Sometimes you might want to restrict an ability to a specific model type or instance.
 
 ## Restricting to a Model Class
@@ -430,6 +436,8 @@ Warden::allow('editor')->to('create', Post::class);
 Warden::assign('editor')->to($user);
 ```
 
+<a id="doc-docs-ownership"></a>
+
 Warden allows users to manage models they "own" using the ownership feature.
 
 ## Allowing Users to Own Models
@@ -501,6 +509,8 @@ if ($user->can('edit', $post)) {
 ```
 
 The ownership check happens automatically if you've granted the `toOwn` ability to the user or their role.
+
+<a id="doc-docs-removing-permissions"></a>
 
 Warden can retract roles and remove abilities that were previously granted.
 
@@ -605,6 +615,8 @@ Remove the ban-users ability from the admin role:
 ```php
 Warden::disallow('admin')->to('ban-users');
 ```
+
+<a id="doc-docs-forbidding"></a>
 
 Warden allows you to `forbid` a given ability for more fine-grained control. At times you may wish to grant a user/role an ability that covers a wide range of actions, but then restrict a small subset of those actions.
 
@@ -712,6 +724,8 @@ The key difference between `forbid` and `disallow`:
 - `forbid` explicitly denies access, even if a broader ability would normally allow it
 
 Use `forbid` when you want to create exceptions to broader permissions. Use `disallow` when you want to remove permissions that were previously granted.
+
+<a id="doc-docs-checking-permissions"></a>
 
 Generally speaking, you should not have a need to check roles directly. It is better to allow a role certain abilities, then check for those abilities instead. If what you need is very general, you can create very broad abilities. For example, an `access-dashboard` ability is always better than checking for `admin` or `editor` roles directly.
 
@@ -835,6 +849,8 @@ foreach ($abilities as $ability) {
 }
 ```
 
+<a id="doc-docs-querying"></a>
+
 Warden provides query scopes to filter users by their roles.
 
 ## Query Users by Role
@@ -944,6 +960,8 @@ $role = Role::where('name', 'editor')->first();
 $abilities = $role->abilities;
 ```
 
+<a id="doc-docs-authorization"></a>
+
 Warden works seamlessly with Laravel's authorization features including the Gate, policies, and blade directives.
 
 ## Using Laravel's Gate
@@ -952,7 +970,7 @@ Authorizing users is handled directly at Laravel's Gate, or on the user model (`
 
 When you check abilities at Laravel's gate, Warden will automatically be consulted. If Warden sees an ability that has been granted to the current user (whether directly, or through a role) it'll authorize the check.
 
-**Note:** Abilities are checked against the configured guard. For applications using multiple guards, see [Multi-Guard Support](multi-guard-support.md) to ensure proper guard isolation.
+**Note:** Abilities are checked against the configured guard. For applications using multiple guards, see [Multi-Guard Support](#doc-docs-multi-guard-support) to ensure proper guard isolation.
 
 ## Warden Passthrough Methods
 
@@ -1119,6 +1137,8 @@ Use in blade templates:
     <a href="{{ route('posts.edit', $post) }}">Edit</a>
 @endcan
 ```
+
+<a id="doc-docs-multi-tenancy"></a>
 
 Warden fully supports multi-tenant apps, allowing you to seamlessly integrate Warden's roles and abilities for all tenants within the same app.
 
@@ -1287,6 +1307,8 @@ Scope relationships but keep role abilities global:
 Warden::scope()->to($tenantId)->onlyRelations()->dontScopeRoleAbilities();
 ```
 
+<a id="doc-docs-configuration"></a>
+
 Warden ships with sensible defaults, so most of the time there should be no need for any configuration. For finer-grained control, Warden can be customized by calling various configuration methods on the `Warden` class.
 
 If you only use one or two of these config options, you can stick them into your main `AppServiceProvider`'s `boot` method. If they start growing, you may create a separate `WardenServiceProvider` class in your `app/Providers` directory (remember to register it in the `providers` config array).
@@ -1391,7 +1413,7 @@ Warden includes migrators to help you transition from other popular Laravel perm
 ],
 ```
 
-See the [Migrating from Other Packages](migrating-from-other-packages.md) guide for complete migration instructions.
+See the [Migrating from Other Packages](#doc-docs-migrating-from-other-packages) guide for complete migration instructions.
 
 ## Guard
 
@@ -1414,7 +1436,7 @@ Warden::guard('web')->allow($user)->to('manage-posts');
 Warden::guard('api')->allow($user)->to('read-data');
 ```
 
-See the [Multi-Guard Support](multi-guard-support.md) guide for complete details on using multiple guards.
+See the [Multi-Guard Support](#doc-docs-multi-guard-support) guide for complete details on using multiple guards.
 
 ## Tables
 
@@ -1615,6 +1637,8 @@ class WardenServiceProvider extends ServiceProvider
 }
 ```
 
+<a id="doc-docs-console-commands"></a>
+
 ## warden:clean
 
 The `warden:clean` command deletes unused abilities. Running this command will delete 2 types of unused abilities.
@@ -1718,6 +1742,8 @@ protected function schedule(Schedule $schedule)
     $schedule->command('warden:clean')->weekly();
 }
 ```
+
+<a id="doc-docs-conditional-permissions"></a>
 
 # Conditional Permissions
 
@@ -2021,6 +2047,8 @@ dd($ability->proposition); // Shows the full proposition structure
 
 The proposition is a `Cline\Ruler\Core\Proposition` instance that can be serialized, stored, and evaluated.
 
+<a id="doc-docs-migrating-from-other-packages"></a>
+
 Warden provides migrators to help you transition from other popular Laravel permission packages. These migrators preserve all your existing roles, abilities, permissions, and assignments while converting them to Warden's schema.
 
 ## Supported Packages
@@ -2077,7 +2105,7 @@ The Spatie migrator transfers:
 - **Model Permissions**: Direct user permissions
 - **Role Permissions**: Permissions assigned to roles
 
-**Important:** The Spatie migrator preserves the `guard_name` from your existing Spatie roles and permissions. This ensures guard isolation is maintained during migration. See [Multi-Guard Support](multi-guard-support.md) for details.
+**Important:** The Spatie migrator preserves the `guard_name` from your existing Spatie roles and permissions. This ensures guard isolation is maintained during migration. See [Multi-Guard Support](#doc-docs-multi-guard-support) for details.
 
 ### Migration Scenarios Covered
 
@@ -2152,7 +2180,7 @@ $apiMigrator = new BouncerMigrator(User::class, 'migration', 'api');
 $apiMigrator->migrate();
 ```
 
-**Note:** Since Bouncer doesn't have built-in guard support, you can specify which guard the migrated roles and abilities should use. See [Multi-Guard Support](multi-guard-support.md) for more information.
+**Note:** Since Bouncer doesn't have built-in guard support, you can specify which guard the migrated roles and abilities should use. See [Multi-Guard Support](#doc-docs-multi-guard-support) for more information.
 
 ### What Gets Migrated
 
@@ -2255,7 +2283,7 @@ Ability not found: 45678
 $migrator = new BouncerMigrator(User::class, 'migration', 'api');
 ```
 
-See [Multi-Guard Support](multi-guard-support.md) for more information on working with multiple guards.
+See [Multi-Guard Support](#doc-docs-multi-guard-support) for more information on working with multiple guards.
 
 ## Custom Migrators
 
@@ -2276,6 +2304,8 @@ class CustomMigrator implements MigratorInterface
 ```
 
 The interface is intentionally simple with a single `migrate()` method, giving you full control over the migration process.
+
+<a id="doc-docs-multi-guard-support"></a>
 
 Warden fully supports Laravel's multiple authentication guards, allowing you to maintain separate permission systems for different parts of your application (web, API, RPC, etc.).
 

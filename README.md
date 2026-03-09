@@ -21,18 +21,18 @@ composer require cline/warden
 
 ## Documentation
 
-- **[Getting Started](cookbook/getting-started.md)** - Installation, configuration, and basic concepts
-- **[Roles and Abilities](cookbook/roles-and-abilities.md)** - Creating and managing roles and permissions
-- **[Model Restrictions](cookbook/model-restrictions.md)** - Scoping abilities to specific models
-- **[Ownership](cookbook/ownership.md)** - Handling ownership-based permissions
-- **[Removing Permissions](cookbook/removing-permissions.md)** - Disallowing and syncing abilities
-- **[Forbidding](cookbook/forbidding.md)** - Explicit denials and blanket restrictions
-- **[Checking Permissions](cookbook/checking-permissions.md)** - Various ways to check authorization
-- **[Querying](cookbook/querying.md)** - Finding users by roles and abilities
-- **[Authorization](cookbook/authorization.md)** - Integration with Laravel's authorization system
-- **[Multi-Tenancy](cookbook/multi-tenancy.md)** - Scoping permissions per tenant
-- **[Configuration](cookbook/configuration.md)** - Advanced configuration options
-- **[Console Commands](cookbook/console-commands.md)** - Artisan commands for maintenance
+- **[Getting Started](DOCS.md#doc-docs-readme)** - Installation, configuration, and basic concepts
+- **[Roles and Abilities](DOCS.md#doc-docs-roles-and-abilities)** - Creating and managing roles and permissions
+- **[Model Restrictions](DOCS.md#doc-docs-model-restrictions)** - Scoping abilities to specific models
+- **[Ownership](DOCS.md#doc-docs-ownership)** - Handling ownership-based permissions
+- **[Removing Permissions](DOCS.md#doc-docs-removing-permissions)** - Disallowing and syncing abilities
+- **[Forbidding](DOCS.md#doc-docs-forbidding)** - Explicit denials and blanket restrictions
+- **[Checking Permissions](DOCS.md#doc-docs-checking-permissions)** - Various ways to check authorization
+- **[Querying](DOCS.md#doc-docs-querying)** - Finding users by roles and abilities
+- **[Authorization](DOCS.md#doc-docs-authorization)** - Integration with Laravel's authorization system
+- **[Multi-Tenancy](DOCS.md#doc-docs-multi-tenancy)** - Scoping permissions per tenant
+- **[Configuration](DOCS.md#doc-docs-configuration)** - Advanced configuration options
+- **[Console Commands](DOCS.md#doc-docs-console-commands)** - Artisan commands for maintenance
 
 ## Change log
 
